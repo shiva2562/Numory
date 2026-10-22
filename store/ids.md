@@ -49,3 +49,23 @@ Play Games configuration: https://play.google.com/console/u/0/developers/7583325
 Play leaderboards: https://play.google.com/console/u/0/developers/7583325027045488402/app/4974023111657408986/games/leaderboards
 Play uploaded versions: https://play.google.com/console/u/0/developers/7583325027045488402/app/4974023111657408986/releases/overview
 RevenueCat offering: https://app.revenuecat.com/projects/0ae737ab/product-catalog/offerings/ofrng9d017a7458
+
+## Pass 2 (2026-10-23)
+
+- Scope: Android com.shivapps.numory; Play app 4974023111657408986; developer 7583325027045488402; Play Games project 589334769912; Google Cloud project numory-7c98d.
+- AdMob publisher pub-8110930605602997: browser origin approval for https://admob.google.com was explicitly declined again; app creation/listing lookup blocked; AdMob app ID unavailable; no app created.
+- AdMob interstitial "Numory interstitial": creation blocked by the same declined origin approval; interstitial unit ID unavailable; no unit created.
+- AdMob privacy policy https://shiva2562.github.io/privacy.html: not entered because AdMob access was blocked.
+- AdMob "ZipTrail – European regulations" consent message: Numory association could not be inspected or added because AdMob access was blocked; no message created or published.
+- App-signing Android OAuth client (com.shivapps.numory; SHA-1 AB:57:E2:32:80:70:60:67:23:86:1F:7E:2A:0D:8A:69:EA:00:92:0A): browser origin approval for https://console.cloud.google.com was explicitly declined again; no client created; client ID unavailable.
+- Upload-key Android OAuth client (com.shivapps.numory; SHA-1 82:D4:C5:D2:B1:E0:A8:80:65:95:56:34:8A:A6:75:36:9A:1D:38:13): blocked by the same declined Google Cloud origin approval; no client created; client ID unavailable.
+- Play Games app-signing Android credential: not created because its requested OAuth client could not be created; credential ID unavailable.
+- Play Games upload-key Android credential: not created because its requested OAuth client could not be created; credential ID unavailable.
+- Existing Play Games credential CgkI-OHbuJMREAIQFA / OAuth client 589334769912-gdk82p898okaofrgkivf8pd6offdbh32.apps.googleusercontent.com: prior recorded IDs retained; not modified or revalidated in Pass 2.
+- OLD Standard Mode 5 numbers — CgkI-OHbuJMREAIQAA: opened read-only; Draft; format Number, 0 decimals, no custom units; ordering Smallest first; Scores cell blank and no player scores visible on detail page; unchanged.
+- OLD Standard Mode 9 numbers — CgkI-OHbuJMREAIQAQ: opened read-only; Draft; format Number, 0 decimals, no custom units; ordering Smallest first; Scores cell blank and no player scores visible on detail page; unchanged.
+- OLD Standard Mode 15 numbers — CgkI-OHbuJMREAIQAg: opened read-only; Draft; format Number, 0 decimals, no custom units; ordering Smallest first; Scores cell blank and no player scores visible on detail page; unchanged.
+- OLD Standard Mode 20 numbers — CgkI-OHbuJMREAIQAw: opened read-only; Draft; format Number, 0 decimals, no custom units; ordering Smallest first; Scores cell blank and no player scores visible on detail page; unchanged.
+- Score visibility limit: blank console Scores cells establish only that no scores were displayed, not that no historical scores exist; all four titles say "in milliseconds" but their configured format is Number, not Duration.
+- Remaining blockers: browser origin approval must be granted for admob.google.com and console.cloud.google.com before the requested AdMob registrations, consent association, OAuth clients, and linked draft Play Games credentials can be completed; no workaround attempted.
+- Safety outcome: no external changes saved, Play Games publication, release/review submission, agreement acceptance, deletion, payments/payouts/permissions changes, service-account key handling, or password handling performed.
