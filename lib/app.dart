@@ -105,7 +105,7 @@ class _NumoryAppState extends State<NumoryApp> {
     title: 'Numory',
     debugShowCheckedModeBanner: false,
     theme: numoryTheme(),
-    home: _services == null ? const Scaffold(body: Dusk(child: SizedBox.expand())) : _Root(services: _services!),
+    home: _services == null ? const Scaffold(body: Backdrop(child: SizedBox.expand())) : _Root(services: _services!),
   );
 }
 

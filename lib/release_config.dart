@@ -13,23 +13,23 @@ const admobInterstitialIos = '';
 
 /// RevenueCat public SDK keys (RevenueCat → Project settings → API keys).
 /// Remove Ads hides while a key is empty.
-const revenueCatAndroidKey = '';
+const revenueCatAndroidKey = 'goog_pXhlTWyxXDJfntNgxnshnnhFFaj';
 const revenueCatIosKey = '';
 
 /// Play Games Services leaderboard IDs (Play Console → Numory → Play Games
 /// Services → Leaderboards). Each: "Time" format, "Smaller is better".
 /// Leaderboards hide while any is empty. The Play Games project ID goes in
 /// android/app/src/main/res/values/games.xml.
-const leaderboardEasyAndroid = '';
-const leaderboardMediumAndroid = '';
-const leaderboardHardAndroid = '';
+const leaderboardEasyAndroid = 'CgkI-OHbuJMREAIQFQ';
+const leaderboardMediumAndroid = 'CgkI-OHbuJMREAIQFg';
+const leaderboardHardAndroid = 'CgkI-OHbuJMREAIQFw';
 
 /// The hosted privacy policy (Settings links to it; Play requires it).
 const privacyPolicyUrl = 'https://shiva2562.github.io/privacy.html';
 
 /// The last version code the old Numory (lost source) uploaded; every new
 /// build must be above it. Read from Play Console → App bundle explorer.
-const minOldVersionCode = '';
+const minOldVersionCode = '1';
 
 /// No iOS release yet.
 const appStoreId = '';

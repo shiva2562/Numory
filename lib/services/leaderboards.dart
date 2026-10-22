@@ -29,7 +29,8 @@ abstract class Leaderboards extends ChangeNotifier {
   bool get available;
   bool get signedIn;
 
-  /// Play Games' silent sign-in at launch; [interactive] for a player tap.
+  /// Whether Play Games' automatic sign-in worked; [interactive] (a player's
+  /// tap) opens Play Games' sign-in UI.
   Future<bool> signIn({bool interactive = false});
 
   /// Submits [time] for [mode] and returns the player's rank, or null when
@@ -48,7 +49,6 @@ String leaderboardId(Mode mode) => switch (mode) {
 
 class PlayGamesLeaderboards extends Leaderboards {
   bool _signedIn = false;
-  Future<bool>? _signingIn;
 
   @override
   bool get available =>
@@ -61,9 +61,24 @@ class PlayGamesLeaderboards extends Leaderboards {
   Future<bool> signIn({bool interactive = false}) {
     if (!available) return Future.value(false);
     if (_signedIn) return Future.value(true);
-    // A tap always gets its own attempt, so the player sees the sign-in.
+    // Only a player's tap may open Play Games' own sign-in UI. Otherwise ask
+    // quietly whether Play Games' automatic sign-in already happened.
     if (interactive) return _signIn();
-    return _signingIn ??= _signIn();
+    return _checking ??= _check();
+  }
+
+  Future<bool>? _checking;
+
+  Future<bool> _check() async {
+    try {
+      _signedIn = await gs.GameAuth.isSignedIn;
+    } on Object catch (e) {
+      debugPrint('Play Games check failed: $e');
+      _signedIn = false;
+    }
+    _checking = null;
+    notifyListeners();
+    return _signedIn;
   }
 
   Future<bool> _signIn() async {

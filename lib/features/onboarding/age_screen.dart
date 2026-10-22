@@ -41,7 +41,7 @@ class _AgeScreenState extends State<AgeScreen> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      body: Dusk(child: SafeArea(
+      body: Backdrop(child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
@@ -50,7 +50,7 @@ class _AgeScreenState extends State<AgeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.shield_outlined, color: kText, size: 44),
+                  Icon(Icons.shield_outlined, color: kCyan, size: 44, shadows: glow(kCyan)),
                   const SizedBox(height: 24),
                   Text(
                     'Which age group are you in?',

@@ -21,6 +21,9 @@ def tone(freqs, dur, kind='sine', attack=0.004, decay=None, vol=0.5):
             ph = 2 * math.pi * f * t
             if kind == 'sine':
                 v += math.sin(ph) + 0.25 * math.sin(2 * ph)
+            elif kind == 'synth':  # two detuned saws, the synthwave lead
+                for det in (0.994, 1.006):
+                    v += 0.5 * sum(math.sin(ph * det * k) / k for k in range(1, 8))
             else:  # soft square
                 v += math.tanh(3 * math.sin(ph))
         out.append(vol * env * v / len(freqs))
@@ -44,11 +47,41 @@ def seq(parts, gap):
     return [s * 0.7 for s in out]
 
 
-A = 392.0  # G4; one semitone up per number
+def sweep(f0, f1, dur, vol=0.35):
+    """A pitch glide (the 'zap' of a tube lighting)."""
+    n, ph, out = int(RATE * dur), 0.0, []
+    for i in range(n):
+        t = i / n
+        ph += 2 * math.pi * (f0 + (f1 - f0) * t * t) / RATE
+        env = min(1.0, i / 200) * (1 - t) ** 1.5
+        out.append(vol * env * (math.sin(ph) + 0.4 * math.sin(2 * ph)))
+    return out
+
+
+def glitch(dur, vol=0.35):
+    """Bit-crushed noise over a low buzz."""
+    import random
+    rnd = random.Random(7)
+    n, out, hold = int(RATE * dur), [], 0.0
+    for i in range(n):
+        t = i / RATE
+        if i % 180 == 0:
+            hold = rnd.uniform(-1, 1)
+        env = math.exp(-t / (dur / 3))
+        buzz = math.tanh(4 * math.sin(2 * math.pi * 98 * t))
+        out.append(vol * env * (0.55 * hold + 0.6 * buzz))
+    return out
+
+
+# Minor pentatonic up from A3: every number a step higher, never a sour note.
+PENTA = [0, 3, 5, 7, 10]
+A = 220.0
 for k in range(15):
-    write(f'note_{k + 1:02d}.wav', tone([A * 2 ** (k / 12)], 0.16, decay=0.14))
-write('start.wav', tone([880, 1320], 0.18, decay=0.12, vol=0.35))
-write('wrong.wav', tone([110, 116], 0.32, kind='square', decay=0.3, vol=0.35))
-write('done.wav', seq([tone([523.25 * 2 ** (s / 12)], 0.4) for s in (0, 4, 7, 12)], 0.08))
-write('best.wav', seq([tone([523.25 * 2 ** (s / 12), 1046.5 * 2 ** (s / 12)], 0.5) for s in (0, 4, 7, 12, 16, 19)], 0.07))
-write('tap.wav', tone([660], 0.06, decay=0.05, vol=0.3))
+    semi = 12 * (k // 5) + PENTA[k % 5]
+    write(f'note_{k + 1:02d}.wav', tone([A * 2 ** (semi / 12)], 0.18, kind='synth', decay=0.15, vol=0.28))
+write('start.wav', sweep(300, 1800, 0.22))
+write('wrong.wav', glitch(0.38))
+arp = lambda notes, gap, dur: seq([tone([220 * 2 ** (s / 12)], dur, kind='synth', vol=0.3) for s in notes], gap)
+write('done.wav', arp((12, 15, 19, 24), 0.075, 0.35))
+write('best.wav', arp((12, 15, 19, 24, 27, 31, 36), 0.065, 0.45))
+write('tap.wav', tone([880], 0.05, kind='synth', decay=0.04, vol=0.18))

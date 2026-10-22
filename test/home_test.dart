@@ -45,7 +45,7 @@ void main() {
     await tester.tap(find.byKey(const Key('play')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('Medium · 9'), findsOneWidget);
+    expect(find.text('MEDIUM · 9'), findsOneWidget);
     for (var k = 1; k <= 9; k++) {
       expect(find.text('$k'), findsOneWidget);
     }

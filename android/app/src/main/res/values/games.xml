@@ -3,5 +3,5 @@
      Services → Setup and management → Configuration). Empty until it exists:
      MainActivity skips Play Games then, and the leaderboards stay hidden. -->
 <resources>
-    <string name="game_services_project_id" translatable="false"></string>
+    <string name="game_services_project_id" translatable="false">589334769912</string>
 </resources>

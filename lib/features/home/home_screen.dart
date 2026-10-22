@@ -7,7 +7,6 @@ import '../../services/juice.dart';
 import '../../services/leaderboards.dart';
 import '../../services/save.dart';
 import '../../theme.dart';
-import '../play/play_screen.dart';
 
 /// Wordmark, mode picker, Play, best time, leaderboard and settings.
 class HomeScreen extends StatelessWidget {
@@ -29,7 +28,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Dusk(
+      body: Backdrop(
+        sun: true,
         child: SafeArea(
           child: ListenableBuilder(
             listenable: Listenable.merge([profile, leaderboards]),
@@ -52,18 +52,18 @@ class HomeScreen extends StatelessWidget {
                               juice?.tap();
                               onSettings();
                             },
-                            icon: const Icon(Icons.settings_rounded, color: kMuted),
+                            icon: Icon(Icons.settings_rounded, color: kCyan, shadows: glow(kCyan, strength: 0.5)),
                           ),
                         ),
-                        const Spacer(flex: 2),
+                        const Spacer(flex: 1),
                         const Wordmark(),
                         const SizedBox(height: 10),
                         Text(
-                          'Remember the numbers. Tap them in order.',
+                          'REMEMBER · TAP IN ORDER · BEAT THE CLOCK',
                           textAlign: TextAlign.center,
-                          style: body(color: kMuted),
+                          style: body(size: 11, weight: FontWeight.w900, color: kCyan, glowColor: kCyan),
                         ),
-                        const Spacer(flex: 2),
+                        const Spacer(flex: 5),
                         _ModePicker(
                           mode: mode,
                           onChanged: (m) {
@@ -72,15 +72,20 @@ class HomeScreen extends StatelessWidget {
                           },
                         ),
                         const SizedBox(height: 14),
-                        Text('${mode.count} numbers', style: body(color: kMuted)),
+                        Text('${mode.count} numbers', style: body(color: kText)),
                         const SizedBox(height: 4),
                         Text(
                           best == null ? 'No best yet' : 'Best ${formatTime(best)} s',
                           key: const Key('home-best'),
-                          style: display(size: 22, color: best == null ? kMuted : kGold, spacing: 1),
+                          style: display(
+                            size: 22,
+                            color: best == null ? kMuted : const Color(0xFFFFF6C2),
+                            spacing: 1,
+                            glowColor: best == null ? null : kGold,
+                          ),
                         ),
                         const SizedBox(height: 26),
-                        PrimaryButton(
+                        NeonButton(
                           key: const Key('play'),
                           label: 'Play',
                           onPressed: () {
@@ -99,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                             icon: const Icon(Icons.leaderboard_rounded, size: 20),
                             label: Text('${mode.label} leaderboard'),
                           ),
-                        const Spacer(flex: 3),
+                        const Spacer(flex: 1),
                       ],
                     ),
                   ),
@@ -113,7 +118,9 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// NUMORY in Orbitron, gently bobbing letter by letter.
+/// NUMORY as a neon sign: magenta and cyan ghosts either side (chromatic
+/// split), the tube flickers on at launch, bobs letter by letter, and every
+/// few seconds one letter stutters.
 class Wordmark extends StatefulWidget {
   const Wordmark({super.key});
 
@@ -122,7 +129,8 @@ class Wordmark extends StatefulWidget {
 }
 
 class _WordmarkState extends State<Wordmark> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 3200));
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 4800));
+  final _born = Stopwatch()..start();
 
   @override
   void didChangeDependencies() {
@@ -140,25 +148,47 @@ class _WordmarkState extends State<Wordmark> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
+  static const _letters = 'NUMORY';
+
+  /// The tube catching at launch: dark beats in the first ~0.9 s.
+  double _launch() {
+    final ms = _born.elapsedMilliseconds;
+    if (ms > 900) return 1;
+    const dark = [(0, 120), (260, 330), (480, 520), (700, 740)];
+    return dark.any((d) => ms >= d.$1 && ms < d.$2) ? 0.12 : 1;
+  }
+
   @override
   Widget build(BuildContext context) {
-    const letters = 'NUMORY';
+    final still = MediaQuery.disableAnimationsOf(context);
     return Semantics(
       label: 'Numory',
       child: ExcludeSemantics(
         child: FittedBox(
           child: AnimatedBuilder(
             animation: _c,
-            builder: (_, _) => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < letters.length; i++)
-                  Transform.translate(
-                    offset: Offset(0, -4 * _wave(_c.value - i * 0.08)),
-                    child: Text(letters[i], style: display(size: 52, spacing: 4)),
-                  ),
-              ],
-            ),
+            builder: (_, _) {
+              final v = _c.value;
+              // One letter stutters once a loop.
+              final stutter = (v > 0.62 && v < 0.64) || (v > 0.66 && v < 0.67) ? 3 : -1;
+              final on = still ? 1.0 : _launch();
+              return Opacity(
+                opacity: on,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < _letters.length; i++)
+                      Transform.translate(
+                        offset: Offset(0, still ? 0 : -4 * _wave(v * 1.5 - i * 0.06)),
+                        child: Opacity(
+                          opacity: i == stutter ? 0.25 : 1,
+                          child: _NeonLetter(_letters[i]),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -171,6 +201,29 @@ class _WordmarkState extends State<Wordmark> with SingleTickerProviderStateMixin
   }
 }
 
+class _NeonLetter extends StatelessWidget {
+  const _NeonLetter(this.letter);
+  final String letter;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = display(size: 56, spacing: 4);
+    return Stack(
+      children: [
+        Transform.translate(
+          offset: const Offset(-2.5, 0),
+          child: Text(letter, style: style.copyWith(color: kMagenta.withValues(alpha: 0.85), shadows: glow(kMagenta))),
+        ),
+        Transform.translate(
+          offset: const Offset(2.5, 0),
+          child: Text(letter, style: style.copyWith(color: kCyan.withValues(alpha: 0.85), shadows: glow(kCyan))),
+        ),
+        Text(letter, style: style.copyWith(color: const Color(0xFFFFF4FD))),
+      ],
+    );
+  }
+}
+
 class _ModePicker extends StatelessWidget {
   const _ModePicker({required this.mode, required this.onChanged});
   final Mode mode;
@@ -179,7 +232,11 @@ class _ModePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(4),
-    decoration: BoxDecoration(color: kCell, borderRadius: BorderRadius.circular(999)),
+    decoration: BoxDecoration(
+      color: const Color(0xCC0E061C),
+      borderRadius: BorderRadius.circular(999),
+      border: Border.all(color: kViolet.withValues(alpha: 0.6)),
+    ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -194,12 +251,19 @@ class _ModePicker extends StatelessWidget {
                 duration: const Duration(milliseconds: 160),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                  color: m == mode ? kTile : Colors.transparent,
+                  color: m == mode ? kMagenta.withValues(alpha: 0.18) : Colors.transparent,
                   borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: m == mode ? kMagenta : Colors.transparent, width: 1.5),
+                  boxShadow: m == mode ? boxGlow(kMagenta, strength: 0.6) : null,
                 ),
                 child: Text(
                   m.label.toUpperCase(),
-                  style: body(size: 13, weight: FontWeight.w900, color: m == mode ? kInk : kMuted),
+                  style: body(
+                    size: 13,
+                    weight: FontWeight.w900,
+                    color: m == mode ? const Color(0xFFFFE3F8) : kMuted,
+                    glowColor: m == mode ? kMagenta : null,
+                  ),
                 ),
               ),
             ),
