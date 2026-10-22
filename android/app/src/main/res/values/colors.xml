@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The near-black behind the splash, matching the first Flutter frame. -->
+    <color name="splash_background">#0B0B0D</color>
+	<color name="ic_launcher_background">#0B0B0D</color>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Play Games Services project ID for Numory (Play Console → Play Games
+     Services → Setup and management → Configuration). Empty until it exists:
+     MainActivity skips Play Games then, and the leaderboards stay hidden. -->
+<resources>
+    <string name="game_services_project_id" translatable="false"></string>
+</resources>

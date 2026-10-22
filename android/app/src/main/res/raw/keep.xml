@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Resource shrinking drops resources that are only looked up by name.
+     Firebase finds its identifiers (res/values/firebase.xml, added with
+     Numory's own Firebase app) that way. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@string/game_services_project_id,@string/google_app_id,@string/google_api_key,@string/gcm_defaultSenderId,@string/project_id,@string/google_storage_bucket" />

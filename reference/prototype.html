@@ -1,0 +1,221 @@
+<title>Numory Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: one phone-shaped column; mode picker, timer, board, one action. Single dark look on purpose (the original Numory was black and white). */
+:root {
+  --ink: #0b0b0d;
+  --board: #000;
+  --cell: #17171b;
+  --tile: #f6f6f2;
+  --text: #f2f2ee;
+  --muted: #8c8c96;
+  --good: #57d98a;
+  --bad: #ff6b6b;
+  --gold: #ffcb52;
+  --dusk1: #3a1c4a;
+  --dusk2: #b4475e;
+  --display: "Orbitron", "Arial Black", system-ui, sans-serif;
+  --body: "Nunito", system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: radial-gradient(120% 70% at 50% 0%, var(--dusk1), var(--ink) 70%);
+  background-color: var(--ink);
+  color: var(--text); font-family: var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px;
+  box-sizing: border-box;
+}
+.app { max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.logo { font-family: var(--display); font-weight: 900; font-size: 26px; letter-spacing: .08em; margin: 0; }
+.logo span { display: inline-block; animation: bob 3.2s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
+.modes { display: flex; background: var(--cell); border-radius: 999px; padding: 3px; }
+.modes button { border: 0; background: transparent; color: var(--muted); font: 800 12px var(--body); letter-spacing: .06em; text-transform: uppercase; padding: 7px 11px; border-radius: 999px; cursor: pointer; }
+.modes button[aria-pressed="true"] { background: var(--tile); color: var(--ink); }
+.hud { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; font-variant-numeric: tabular-nums; }
+.hud .lvl { font: 800 14px var(--body); color: var(--muted); }
+.hud .mid { font-family: var(--display); font-size: 24px; color: var(--bad); min-width: 100px; text-align: center; }
+.hud .right { text-align: right; color: var(--muted); font-size: 13px; font-weight: 700; }
+.board { position: relative; background: var(--board); border-radius: 18px; padding: 8px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; box-shadow: 0 20px 50px -20px var(--dusk2); touch-action: manipulation; }
+.cell { aspect-ratio: 1; background: var(--cell); border-radius: 6px; border: 0; padding: 0; display: grid; place-items: center; font: 800 clamp(18px, 6vw, 28px) var(--body); color: var(--text); cursor: default; }
+.cell.tile { cursor: pointer; background: transparent; }
+.cell.tile.hidden { background: var(--tile); color: transparent; }
+.cell.done { background: var(--cell); color: transparent; animation: pop .25s ease-out; }
+.cell.wrong { animation: shake .35s; background: var(--bad); color: var(--ink); }
+.cell.missed { color: var(--gold); background: transparent; }
+@keyframes pop { 0% { transform: scale(1.18); background: var(--good) } 100% { transform: scale(1) } }
+@keyframes shake { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-5px) } 75% { transform: translateX(5px) } }
+.say { min-height: 22px; text-align: center; color: var(--muted); font-weight: 700; font-size: 15px; text-wrap: balance; margin: 0; }
+.say b { color: var(--text); }
+.btn { border: 0; border-radius: 14px; font: 800 16px var(--body); padding: 14px 22px; cursor: pointer; background: var(--cell); color: var(--text); }
+.btn.primary { background: var(--tile); color: var(--ink); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.05) } }
+.btn:focus-visible, .cell:focus-visible, .modes button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.result { position: absolute; inset: 0; background: rgba(0,0,0,.86); border-radius: 18px; display: grid; place-items: center; text-align: center; padding: 16px; }
+.result h2 { font-family: var(--display); font-size: 28px; margin: 0 0 4px; letter-spacing: .06em; }
+.result .time { font-family: var(--display); font-size: 40px; color: var(--text); margin: 4px 0; font-variant-numeric: tabular-nums; }
+.result p { margin: 6px 0; color: var(--muted); font-weight: 700; }
+.result p b { color: var(--text); }
+.rank { display: inline-flex; flex-direction: column; gap: 2px; background: var(--cell); border-radius: 14px; padding: 10px 16px; margin: 8px 0; }
+.rank .big { font-family: var(--display); color: var(--gold); font-size: 22px; }
+.rank small { color: var(--muted); font-size: 11px; }
+.row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+.lb { background: var(--cell); border-radius: 16px; padding: 12px 14px; }
+.lb h3 { margin: 0 0 8px; font: 800 13px var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; }
+.lb ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-variant-numeric: tabular-nums; }
+.lb li { display: grid; grid-template-columns: 2.4em 1fr auto; gap: 8px; font-weight: 700; font-size: 14px; }
+.lb li.me { color: var(--gold); }
+.lb li span:first-child { color: var(--muted); }
+.note { font-size: 12px; color: var(--muted); text-align: center; margin: 0; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+
+<div class="app">
+  <header>
+    <h1 class="logo"><span>NUMORY</span></h1>
+    <div class="modes" role="group" aria-label="Difficulty">
+      <button id="m-easy" aria-pressed="true">Easy</button>
+      <button id="m-medium" aria-pressed="false">Medium</button>
+      <button id="m-hard" aria-pressed="false">Hard</button>
+    </div>
+  </header>
+  <div class="hud">
+    <div class="lvl" id="lvl">5 numbers</div>
+    <div class="mid" id="mid">0.00</div>
+    <div class="right" id="best">Best —</div>
+  </div>
+  <div class="board" id="board"></div>
+  <p class="say" id="say"></p>
+  <section class="lb" aria-label="Leaderboard">
+    <h3><span id="lbTitle">Easy · global</span><span>sample</span></h3>
+    <ol id="lbList"></ol>
+  </section>
+  <p class="note">Prototype. The leaderboard names and ranks are made-up sample players to show the screen. Real ranks will come from the live global leaderboard.</p>
+</div>
+
+<script>
+const MODES = { easy: { n: 5, label: "Easy" }, medium: { n: 9, label: "Medium" }, hard: { n: 15, label: "Hard" } };
+const COLS = 5, ROWS = 8;
+
+// Sample player pool per mode (seeded, so it looks the same on every visit). Times in seconds.
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const NAMES = ["Mira","Jonas","Aiko","Priya","Leo","Sofia","Kwame","Elena","Tariq","Nora","Hugo","Ines","Dev","Lena","Omar","Yuki","Ravi","Clara","Mateo","Zara"];
+const SAMPLE = {}; const POOL = 48000;
+for (const [k, m] of Object.entries(MODES)) {
+  const r = mulberry(m.n * 7919), base = { easy: 1.1, medium: 2.6, hard: 6.5 }[k];
+  // Log-normal-ish spread around a typical time for the mode.
+  const times = Array.from({ length: 400 }, () => { let g = 0; for (let i = 0; i < 6; i++) g += r(); g = (g - 3) / 1.0; return +(base * Math.exp(g * 0.45 + 0.35)).toFixed(2); }).sort((a, b) => a - b);
+  SAMPLE[k] = { times, top: times.slice(0, 5).map((t, i) => ({ name: NAMES[(i * 7 + m.n) % NAMES.length], t })) };
+}
+function rankFor(mode, t) {
+  const ts = SAMPLE[mode].times; let lo = 0; while (lo < ts.length && ts[lo] < t) lo++;
+  const frac = lo / ts.length;
+  return { rank: Math.max(1, Math.round(frac * POOL) + 1), pct: Math.round((1 - frac) * 100) };
+}
+
+const $ = id => document.getElementById(id);
+const board = $("board"), say = $("say");
+let mode = "easy", st = null, timer = null;
+const best = {};
+try { Object.assign(best, JSON.parse(localStorage.getItem("numory.classic.best") || "{}")); } catch (e) {}
+const saveBest = () => { try { localStorage.setItem("numory.classic.best", JSON.stringify(best)); } catch (e) {} };
+
+let ac = null;
+function tone(f, d = .09, type = "triangle", v = .12) { try { ac = ac || new AudioContext(); const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, ac.currentTime); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d); o.connect(g).connect(ac.destination); o.start(); o.stop(ac.currentTime + d); } catch (e) {} }
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+
+function renderBoard(pos) {
+  board.innerHTML = "";
+  for (let i = 0; i < COLS * ROWS; i++) { const b = document.createElement("button"); b.className = "cell"; b.tabIndex = -1; b.setAttribute("aria-hidden", "true"); board.appendChild(b); }
+  pos.forEach((c, k) => { const b = board.children[c]; b.textContent = k + 1; b.classList.add("tile"); b.dataset.n = k + 1; b.tabIndex = 0; b.removeAttribute("aria-hidden"); b.setAttribute("aria-label", "Number " + (k + 1)); });
+}
+function newPositions(n) {
+  const cells = [...Array(COLS * ROWS).keys()];
+  for (let i = cells.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+  return cells.slice(0, n);
+}
+
+function showIdle() {
+  clearInterval(timer); st = null;
+  const n = MODES[mode].n;
+  renderBoard([]);
+  $("lvl").textContent = n + " numbers";
+  $("mid").textContent = "0.00";
+  $("best").textContent = best[mode] != null ? "Best " + best[mode].toFixed(2) + "s" : "Best —";
+  say.innerHTML = "The clock starts the moment the numbers appear.";
+  overlay(`<div><h2>${MODES[mode].label.toUpperCase()}</h2><p>Memorise <b>${n}</b> numbers, then tap them from <b>1</b> to <b>${n}</b>.<br>After <b>1</b>, the rest turn white.</p><div class="row"><button class="btn primary" id="playBtn">Play</button></div></div>`);
+  $("playBtn").onclick = play; $("playBtn").focus();
+  renderLb(null);
+}
+
+function play() {
+  const n = MODES[mode].n, pos = newPositions(n);
+  st = { n, pos, next: 1, over: false, t0: performance.now() };
+  renderBoard(pos);
+  say.innerHTML = `Tap <b>1</b>, then the rest in order.`;
+  tone(880, .08, "sine", .08);
+  timer = setInterval(() => { $("mid").textContent = ((performance.now() - st.t0) / 1000).toFixed(2); }, 30);
+}
+
+board.addEventListener("click", e => {
+  const b = e.target.closest(".cell"); if (!b || !st || st.over) return;
+  if (!b.classList.contains("tile") || b.classList.contains("done")) return; // empty or already-cleared squares do nothing
+  const n = +b.dataset.n;
+  if (n !== st.next) return lose(b, n);
+  b.classList.remove("hidden"); b.classList.add("done");
+  tone(392 * Math.pow(2, (st.next - 1) / 12)); buzz(8);
+  if (st.next === 1) board.querySelectorAll(".tile:not(.done)").forEach(t => t.classList.add("hidden"));
+  st.next++;
+  if (st.next > st.n) win();
+});
+
+function win() {
+  st.over = true; clearInterval(timer);
+  const t = +((performance.now() - st.t0) / 1000).toFixed(2);
+  $("mid").textContent = t.toFixed(2);
+  const nb = best[mode] == null || t < best[mode]; if (nb) { best[mode] = t; saveBest(); }
+  $("best").textContent = "Best " + best[mode].toFixed(2) + "s";
+  const { rank, pct } = rankFor(mode, t);
+  [0, 4, 7, 12].forEach((s, i) => setTimeout(() => tone(523 * Math.pow(2, s / 12), .25, "sine", .1), i * 90)); buzz(40);
+  overlay(`<div><h2>${nb ? "NEW BEST" : "DONE"}</h2><div class="time">${t.toFixed(2)} s</div>
+    <div class="rank"><span class="big">#${rank.toLocaleString()}</span><span>Faster than <b>${pct}%</b> of players</span><small>Sample rank in ${MODES[mode].label}</small></div>
+    ${nb ? "" : `<p>Your best <b>${best[mode].toFixed(2)} s</b></p>`}
+    <div class="row"><button class="btn primary" id="againBtn">Play again</button></div></div>`);
+  $("againBtn").onclick = play; $("againBtn").focus();
+  renderLb(t);
+}
+
+function lose(b, n) {
+  st.over = true; clearInterval(timer);
+  b.classList.add("wrong"); tone(150, .2, "square", .07); buzz(60);
+  b.classList.remove("hidden");
+  const want = board.children[st.pos[st.next - 1]]; want.classList.remove("hidden"); want.classList.add("missed");
+  setTimeout(() => {
+    overlay(`<div><h2>OOPS</h2><p>That was <b>${n}</b>. You needed <b>${st.next}</b> (shown in gold).</p><div class="row"><button class="btn primary" id="againBtn">Try again</button></div></div>`);
+    $("againBtn").onclick = play; $("againBtn").focus();
+  }, 650);
+}
+
+function renderLb(myT) {
+  $("lbTitle").textContent = MODES[mode].label + " · global";
+  const rows = SAMPLE[mode].top.map((p, i) => `<li><span>${i + 1}</span><span>${p.name}</span><span>${p.t.toFixed(2)} s</span></li>`);
+  const myBest = best[mode];
+  if (myBest != null) {
+    const { rank } = rankFor(mode, myBest);
+    rows.push(`<li class="me"><span>${rank > 999 ? "…" : rank}</span><span>You${rank > 999 ? " · #" + rank.toLocaleString() : ""}</span><span>${myBest.toFixed(2)} s</span></li>`);
+  }
+  $("lbList").innerHTML = rows.join("");
+}
+
+function overlay(html) { board.querySelector(".result")?.remove(); const d = document.createElement("div"); d.className = "result"; d.innerHTML = html; board.appendChild(d); }
+
+function setMode(m) { mode = m; for (const k of Object.keys(MODES)) $("m-" + k).setAttribute("aria-pressed", k === m); showIdle(); }
+for (const k of Object.keys(MODES)) $("m-" + k).onclick = () => setMode(k);
+showIdle();
+</script>

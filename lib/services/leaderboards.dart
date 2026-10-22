@@ -1,0 +1,150 @@
+/// The three all-time global leaderboards, one per mode, on Google Play
+/// Games Services. Times go in as milliseconds; lower is better (set "Smaller
+/// is better" and "Time" format on each leaderboard in Play Console).
+///
+/// A fake stands in for tests and for builds without leaderboard IDs.
+library;
+
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:games_services/games_services.dart' as gs;
+
+import '../core/round.dart';
+import '../release_config.dart';
+
+/// Where a submitted time puts the player.
+class RankInfo {
+  const RankInfo({required this.rank, required this.best});
+
+  /// 1-based all-time rank in the world.
+  final int rank;
+
+  /// The player's best time on the board.
+  final Duration best;
+}
+
+abstract class Leaderboards extends ChangeNotifier {
+  /// False while the leaderboard IDs are empty: nothing to submit to.
+  bool get available;
+  bool get signedIn;
+
+  /// Play Games' silent sign-in at launch; [interactive] for a player tap.
+  Future<bool> signIn({bool interactive = false});
+
+  /// Submits [time] for [mode] and returns the player's rank, or null when
+  /// Play Games couldn't tell us.
+  Future<RankInfo?> submit(Mode mode, Duration time);
+
+  /// Opens Play Games' own screen for [mode]'s board.
+  Future<void> show(Mode mode);
+}
+
+String leaderboardId(Mode mode) => switch (mode) {
+  Mode.easy => leaderboardEasyAndroid,
+  Mode.medium => leaderboardMediumAndroid,
+  Mode.hard => leaderboardHardAndroid,
+};
+
+class PlayGamesLeaderboards extends Leaderboards {
+  bool _signedIn = false;
+  Future<bool>? _signingIn;
+
+  @override
+  bool get available =>
+      defaultTargetPlatform == TargetPlatform.android && Mode.values.every((m) => leaderboardId(m).isNotEmpty);
+
+  @override
+  bool get signedIn => _signedIn;
+
+  @override
+  Future<bool> signIn({bool interactive = false}) {
+    if (!available) return Future.value(false);
+    if (_signedIn) return Future.value(true);
+    // A tap always gets its own attempt, so the player sees the sign-in.
+    if (interactive) return _signIn();
+    return _signingIn ??= _signIn();
+  }
+
+  Future<bool> _signIn() async {
+    try {
+      await gs.GameAuth.signIn();
+      _signedIn = await gs.GameAuth.isSignedIn;
+    } on Object catch (e) {
+      debugPrint('Play Games sign-in failed: $e');
+      _signedIn = false;
+    }
+    notifyListeners();
+    return _signedIn;
+  }
+
+  @override
+  Future<RankInfo?> submit(Mode mode, Duration time) async {
+    if (!await signIn()) return null;
+    final id = leaderboardId(mode);
+    try {
+      await gs.Leaderboards.submitScore(score: gs.Score(androidLeaderboardID: id, value: centis(time) * 10));
+      final me = await gs.Leaderboards.getPlayerScoreObject(
+        androidLeaderboardID: id,
+        scope: gs.PlayerScope.global,
+        timeScope: gs.TimeScope.allTime,
+      );
+      if (me == null || me.rank <= 0) return null;
+      return RankInfo(rank: me.rank, best: Duration(milliseconds: me.rawScore));
+    } on Object catch (e) {
+      debugPrint('Leaderboard submit failed: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<void> show(Mode mode) async {
+    if (!await signIn(interactive: true)) return;
+    try {
+      await gs.Leaderboards.showLeaderboards(androidLeaderboardID: leaderboardId(mode));
+    } on Object catch (e) {
+      debugPrint('Leaderboard screen failed: $e');
+    }
+  }
+}
+
+/// For tests and debug builds without IDs: remembers bests, ranks by a
+/// made-up crowd so the result card can be seen.
+class FakeLeaderboards extends Leaderboards {
+  FakeLeaderboards({this.available = true, bool signedIn = true}) {
+    _signedIn = signedIn;
+  }
+
+  @override
+  final bool available;
+  late bool _signedIn;
+  final Map<Mode, Duration> bests = {};
+  final List<Mode> shown = [];
+
+  @override
+  bool get signedIn => _signedIn;
+
+  @override
+  Future<bool> signIn({bool interactive = false}) async {
+    if (interactive && available) {
+      _signedIn = true;
+      notifyListeners();
+    }
+    return _signedIn;
+  }
+
+  @override
+  Future<RankInfo?> submit(Mode mode, Duration time) async {
+    if (!available || !_signedIn) return null;
+    final old = bests[mode];
+    final best = old == null || time < old ? time : old;
+    bests[mode] = best;
+    // About one player per 10 ms over a typical time for the mode.
+    final typical = {Mode.easy: 1200, Mode.medium: 2800, Mode.hard: 7000}[mode]!;
+    final rank = 1 + ((best.inMilliseconds - typical / 3).clamp(0, 1e9) / 10).round();
+    return RankInfo(rank: rank, best: best);
+  }
+
+  @override
+  Future<void> show(Mode mode) async => shown.add(mode);
+}
