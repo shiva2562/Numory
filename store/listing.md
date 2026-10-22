@@ -28,4 +28,4 @@ No account needed. Ads between rounds can be removed with a one-time purchase.
 **Category:** Puzzle (or Brain Games under Puzzle, if offered)
 **Contact:** cynodev256@gmail.com · https://shiva2562.github.io
 
-**Still needed:** 4+ phone screenshots (1080×1920) and a 1024×500 feature graphic. The old listing's art shows the old app's screens.
+**Art:** `store/icon-512.png`, `store/feature_graphic.png`, screenshots `store/marketing/android/01–04.jpg`.

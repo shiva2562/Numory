@@ -13,6 +13,6 @@ IDs: `store/ids.md`. Play Console answers: `store/data-safety.md`. Listing draft
 2. On the phone: a round in each mode, Play Games sign-in from the result card, a leaderboard score, Share, Settings.
 3. Create the one-time product `remove_ads` at US $2.99 (Play allows it once a billing build is uploaded); activate; check RevenueCat shows it; license-test purchase and restore.
 4. **Publish Play Games Services** (Play Console → Play Games Services → Publishing). Until then only testers can sign in and see the leaderboards.
-5. Store listing: text from `store/listing.md`, icon `store/icon-512.png`, feature graphic `store/feature_graphic.png`, 4+ new screenshots.
+5. Store listing: text from `store/listing.md`, icon `store/icon-512.png`, feature graphic `store/feature_graphic.png`, phone screenshots `store/marketing/android/01–04.jpg` in that order.
 6. Promote the tested build to **Production → Send for review**. Approval reinstates the app and clears the policy issues.
 7. Once live: AdMob → Numory → add store link (lifts limited ad serving).

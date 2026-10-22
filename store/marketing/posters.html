@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Numory store posters</title>
+<!--
+  Google Play phone screenshots, 1080 x 1920. Real app captures from
+  test/store_screenshots_test.dart (source/*.png) in a neon frame.
+  Export: tools/export_posters.sh  (headless Chrome, ?slide=1..4)
+-->
+<style>
+@font-face{font-family:Orbitron;src:url('../../assets/fonts/Orbitron.ttf')}
+@font-face{font-family:Nunito;src:url('../../assets/fonts/Nunito.ttf')}
+:root{--void:#07030f;--magenta:#ff2bd6;--cyan:#19f0ff;--violet:#8b3dff;--gold:#ffe45c;--text:#f4f0ff;--muted:#b9addb}
+*{box-sizing:border-box}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:var(--void)}
+#poster{position:relative;width:1080px;height:1920px;overflow:hidden;color:var(--text);font-family:Nunito,sans-serif;
+  background:radial-gradient(120% 55% at 50% 0%,#2a0b4a 0%,#12052a 45%,var(--void) 75%)}
+/* synthwave floor behind the phone */
+.floor{position:absolute;left:-40%;right:-40%;bottom:-2%;height:46%;transform:perspective(520px) rotateX(62deg);transform-origin:50% 0;
+  background-image:linear-gradient(rgba(25,240,255,.55) 2px,transparent 2px),linear-gradient(90deg,rgba(25,240,255,.55) 2px,transparent 2px);
+  background-size:90px 90px;filter:drop-shadow(0 0 6px rgba(25,240,255,.7));opacity:.55}
+.horizon{position:absolute;left:0;right:0;bottom:46%;height:3px;background:var(--magenta);box-shadow:0 0 18px 4px rgba(255,43,214,.7)}
+.sun{position:absolute;left:50%;bottom:46%;width:560px;height:280px;margin-left:-280px;border-radius:280px 280px 0 0;
+  background:linear-gradient(#ffe45c,#ff7a3d 55%,#ff2bd6);opacity:.28;
+  -webkit-mask:repeating-linear-gradient(to bottom,#000 0 34px,transparent 34px 44px);mask:repeating-linear-gradient(to bottom,#000 0 34px,transparent 34px 44px)}
+.scan{position:absolute;inset:0;background:repeating-linear-gradient(transparent 0 2px,rgba(0,0,0,.18) 2px 3px);pointer-events:none}
+.mast{position:absolute;left:64px;right:64px;top:62px;display:flex;justify-content:space-between;align-items:center}
+.word{font:900 34px/1 Orbitron,sans-serif;letter-spacing:5px;color:#fff4fd;
+  text-shadow:-2px 0 rgba(255,43,214,.9),2px 0 rgba(25,240,255,.9),0 0 18px rgba(255,43,214,.6)}
+.eyebrow{font:900 20px/1 Nunito,sans-serif;letter-spacing:4px;color:var(--cyan);text-shadow:0 0 12px rgba(25,240,255,.7)}
+h1{position:absolute;left:64px;right:40px;top:150px;margin:0;font:900 88px/1.04 Orbitron,sans-serif;letter-spacing:1px;text-transform:uppercase}
+h1 span{display:block;color:#fff4fd;text-shadow:0 0 6px rgba(255,255,255,.5),0 0 22px rgba(255,43,214,.55)}
+h1 span.hot{color:#ffd6f5;text-shadow:0 0 8px var(--magenta),0 0 26px var(--magenta),0 0 60px rgba(255,43,214,.6)}
+h1 span.cool{color:#dffbff;text-shadow:0 0 8px var(--cyan),0 0 26px var(--cyan),0 0 60px rgba(25,240,255,.6)}
+.sub{position:absolute;left:66px;right:80px;font:700 34px/1.35 Nunito,sans-serif;color:var(--muted);text-wrap:balance}
+.sub b{color:var(--text);font-weight:900}
+.phone{position:absolute;left:50%;width:740px;margin-left:-370px;border-radius:64px;padding:14px;
+  background:linear-gradient(140deg,var(--magenta),var(--violet) 45%,var(--cyan));
+  box-shadow:0 0 30px rgba(255,43,214,.55),0 0 90px rgba(25,240,255,.35)}
+.phone img{display:block;width:100%;border-radius:52px}
+.chip{position:absolute;font:900 26px/1 Nunito,sans-serif;letter-spacing:2px;text-transform:uppercase;padding:18px 26px;border-radius:999px;
+  background:rgba(14,6,28,.92);border:2px solid var(--gold);color:#fff6c2;box-shadow:0 0 22px rgba(255,228,92,.55)}
+</style>
+<main id="poster">
+  <div class="sun"></div><div class="horizon"></div><div class="floor"></div>
+  <div class="mast"><div class="word">NUMORY</div><div class="eyebrow">NUMBER MEMORY GAME</div></div>
+  <h1></h1><div class="sub"></div>
+  <div class="phone"><img alt=""></div>
+  <div class="chip" hidden></div>
+  <div class="scan"></div>
+</main>
+<script>
+const slides = {
+  1: {title: [['How fast is', ''], ['your memory?', 'hot']], sub: 'Memorise the numbers. Tap them <b>in order</b>. Beat the clock.', shot: 'numbers'},
+  2: {title: [['Tap 1.', 'cool'], ['Now remember.', '']], sub: 'The rest turn white. <b>One wrong tap</b> ends the round.', shot: 'tiles'},
+  3: {title: [['Race the', ''], ['whole world.', 'hot']], sub: 'Easy, Medium and Hard each have a <b>global leaderboard</b>.', shot: 'result', chip: 'Global leaderboards'},
+  4: {title: [['5, 9 or 15', 'cool'], ['numbers.', '']], sub: 'Three modes. Seconds a round. <b>The chimp test</b> game.', shot: 'home'},
+};
+const n = Number(new URLSearchParams(location.search).get('slide') || 1), s = slides[n];
+document.querySelector('h1').innerHTML = s.title.map(([t, c]) => `<span class="${c}">${t}</span>`).join('');
+const sub = document.querySelector('.sub'); sub.innerHTML = s.sub;
+const h1 = document.querySelector('h1'), phone = document.querySelector('.phone');
+document.fonts.ready.then(() => {
+  sub.style.top = (h1.offsetTop + h1.offsetHeight + 26) + 'px';
+  phone.style.top = (sub.offsetTop + sub.offsetHeight + 56) + 'px';
+  if (s.chip) {
+    const chip = document.querySelector('.chip'); chip.hidden = false; chip.textContent = '★ ' + s.chip;
+    chip.style.right = '44px'; chip.style.top = (phone.offsetTop - 30) + 'px';
+  }
+  document.title = 'Numory poster ' + n + ' ready';
+});
+document.querySelector('.phone img').src = 'source/' + s.shot + '.png';
+</script>
+</html>
