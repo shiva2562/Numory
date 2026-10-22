@@ -120,4 +120,4 @@ flutter_launcher_icons:
   remove_alpha_ios: true
   adaptive_icon_background: "#000000"
   adaptive_icon_foreground: art/app_icon.png
-  adaptive_icon_foreground_inset: 24
+  adaptive_icon_foreground_inset: 0
