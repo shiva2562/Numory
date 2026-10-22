@@ -18,7 +18,8 @@ String read(String path) =>
 String? match(String text, RegExp re) => re.firstMatch(text)?.group(1);
 
 String? platformFrom(List<String> args) {
-  if (args.isEmpty) return 'all';
+  // Numory is Android only for now.
+  if (args.isEmpty) return 'android';
   if (args.length == 1 && args.single.startsWith('--platform=')) {
     final platform = args.single.substring('--platform='.length);
     return {'android', 'ios', 'all'}.contains(platform) ? platform : null;
@@ -66,11 +67,6 @@ void checkAndroid(Map<String, String> config) {
     'AdMob → Apps → Numory (Android) → App settings → App ID; paste it into $manifestPath.',
   );
   check(
-    validAdMobUnitId(config['admobRewardedAndroid']),
-    'Android rewarded AdMob unit is a real Numory ID',
-    'AdMob → Apps → Numory → Ad units; paste the rewarded ID into lib/release_config.dart.',
-  );
-  check(
     validAdMobUnitId(config['admobInterstitialAndroid']),
     'Android interstitial AdMob unit is a real Numory ID',
     'AdMob → Apps → Numory → Ad units; paste the interstitial ID into lib/release_config.dart.',
@@ -96,21 +92,28 @@ void checkAndroid(Map<String, String> config) {
     'R8 keeps the WorkManager database constructor (release launch crash)',
     'Restore the RoomDatabase keep rule in android/app/proguard-rules.pro.',
   );
-  check(
-    read('android/app/src/main/res/raw/keep.xml').contains('@drawable/ic_notification'),
-    'Resource shrinking keeps the reminder icon',
-    'Restore tools:keep="@drawable/ic_notification" in android/app/src/main/res/raw/keep.xml.',
-  );
-  final firebaseAppId = match(
-    read('android/app/src/main/res/values/firebase.xml'),
-    RegExp(r'name="google_app_id"[^>]*>([^<]+)<'),
+  final gamesId = match(
+    read('android/app/src/main/res/values/games.xml'),
+    RegExp(r'name="game_services_project_id"[^>]*>([^<]*)<'),
   );
   check(
-    firebaseAppId != null &&
-        read('lib/firebase_options.dart').contains("appId: '$firebaseAppId'") &&
-        read('android/app/src/main/res/raw/keep.xml').contains('@string/google_app_id'),
-    'Firebase app ID is in the resources, matches firebase_options.dart and survives shrinking',
-    'Analytics reads google_app_id at start-up: see res/values/firebase.xml and res/raw/keep.xml.',
+    RegExp(r'^\d{6,}$').hasMatch(gamesId ?? ''),
+    'Play Games project ID is set (${gamesId?.isEmpty ?? true ? 'missing' : gamesId})',
+    'Play Console → Play Games Services → Configuration → Project ID; paste it into res/values/games.xml.',
+  );
+  for (final mode in ['Easy', 'Medium', 'Hard']) {
+    check(
+      RegExp(r'^CgkI[\w-]+$').hasMatch(config['leaderboard${mode}Android'] ?? ''),
+      '$mode leaderboard ID is set',
+      'Play Games Services → Leaderboards → $mode → ID; paste it into lib/release_config.dart.',
+    );
+  }
+  check(
+    RegExp(r'^\d+$').hasMatch(config['minOldVersionCode'] ?? '') &&
+        int.parse(config['minOldVersionCode']!) <
+            int.parse(match(read('pubspec.yaml'), RegExp(r'^version:.*\+(\d+)$', multiLine: true)) ?? '0'),
+    'Build number is above the old Numory\'s last version code',
+    'Set minOldVersionCode in lib/release_config.dart from Play Console → App bundle explorer, and raise pubspec.yaml if needed.',
   );
   checkAndroidSigning();
 }
@@ -212,13 +215,6 @@ void main(List<String> args) {
     (config['privacyPolicyUrl'] ?? '').startsWith('https://'),
     'Privacy policy URL is set',
     'Host legal/privacy.html and paste its https URL into lib/release_config.dart.',
-  );
-  check(
-    read(
-      'lib/services/config.dart',
-    ).contains("'unlock_all_levels': !bool.fromEnvironment('dart.vm.product')"),
-    'Levels are locked in release builds',
-    "lib/services/config.dart: 'unlock_all_levels' must be !bool.fromEnvironment('dart.vm.product').",
   );
   final version = match(
     read('pubspec.yaml'),

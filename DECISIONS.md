@@ -14,3 +14,4 @@
 - No Firebase until Numory has its own app in `shivapps-games` (checkpoint). `firebase_options.dart` returns null, so analytics and crash reports stay off.
 - The play screen opens with no transition, and the clock starts on the first drawn frame, so the player never loses time to an animation.
 - Version starts at `2.0.0+100`, assumed above the old app's last version code. Confirm in Play Console (App bundle explorer) before the first upload.
+- Privacy policy: the shared page https://shiva2562.github.io/privacy.html (Shiva, 2026-10-23). No Firebase in v1 (Shiva).

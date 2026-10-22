@@ -25,7 +25,11 @@ const leaderboardMediumAndroid = '';
 const leaderboardHardAndroid = '';
 
 /// The hosted privacy policy (Settings links to it; Play requires it).
-const privacyPolicyUrl = '';
+const privacyPolicyUrl = 'https://shiva2562.github.io/privacy.html';
+
+/// The last version code the old Numory (lost source) uploaded; every new
+/// build must be above it. Read from Play Console → App bundle explorer.
+const minOldVersionCode = '';
 
 /// No iOS release yet.
 const appStoreId = '';
