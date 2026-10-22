@@ -8,7 +8,7 @@ library;
 /// AdMob ad units (AdMob → Apps → Numory → Ad units). Release builds use
 /// these; debug and profile builds always use Google's test units. The AdMob
 /// *app* ID lives in AndroidManifest.xml. Numory has no rewarded videos.
-const admobInterstitialAndroid = '';
+const admobInterstitialAndroid = 'ca-app-pub-8110930605602997/9323557259';
 const admobInterstitialIos = '';
 
 /// RevenueCat public SDK keys (RevenueCat → Project settings → API keys).
