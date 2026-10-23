@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:numory/app.dart';
+import 'package:numory/features/share/invite_card.dart';
 import 'package:numory/services/config.dart';
+import 'package:numory/services/feedback.dart';
 import 'package:numory/services/juice.dart';
 import 'package:numory/services/leaderboards.dart';
 import 'package:numory/services/music.dart';
@@ -23,11 +27,12 @@ class FakeInterstitialAds implements InterstitialAds {
 }
 
 class TestRig {
-  TestRig._(this.services, this.ads, this.sounds, this.boards);
+  TestRig._(this.services, this.ads, this.sounds, this.boards, this.musicPlayer);
   final AppServices services;
   final FakeInterstitialAds ads;
   final RecordingBackend sounds;
   final FakeLeaderboards boards;
+  final FakeMusicPlayer musicPlayer;
 
   Profile get profile => services.profile;
 
@@ -36,6 +41,10 @@ class TestRig {
     String? ageGroup = '18_plus',
     FakeLeaderboards? boards,
     GameConfig? config,
+    FeedbackSender? feedback,
+    Future<void> Function()? requestReview,
+    Sharer? share,
+    Future<Uint8List> Function(InviteCard card)? renderInvite,
   }) async {
     SharedPreferences.setMockInitialValues(prefs);
     final profile = Profile(store: await SaveStore.open(), config: config);
@@ -44,6 +53,7 @@ class TestRig {
     final sounds = RecordingBackend();
     final b = boards ?? FakeLeaderboards();
     final store = FakeStore(owned: profile.entitlements, onChange: profile.setEntitlements);
+    final musicPlayer = FakeMusicPlayer();
     final services = AppServices(
       profile: profile,
       juice: Juice(sound: sounds, haptics: sounds, soundOn: () => profile.sound, hapticsOn: () => profile.haptics),
@@ -55,9 +65,14 @@ class TestRig {
         store: store,
       ),
       leaderboards: b,
-      music: Music(profile: profile, player: FakeMusicPlayer()),
+      music: Music(profile: profile, player: musicPlayer),
+      requestReview: requestReview ?? () async {},
+      // Never the real relay in tests.
+      feedback: feedback ?? ({required message, replyTo}) async => true,
+      share: share ?? (png, text) async {},
+      renderInvite: renderInvite ?? (card) async => Uint8List(0),
     );
-    return TestRig._(services, ads, sounds, b);
+    return TestRig._(services, ads, sounds, b, musicPlayer);
   }
 }
 

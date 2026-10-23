@@ -24,6 +24,11 @@ class GameConfig {
     'min_valid_seconds_hard': 1.8,
     // The one-time Remove Ads offer, after this many rounds.
     'first_offer_round': 25,
+    // The store's own rating sheet on a new best: from this round on, at
+    // most once in this many days, this long after the result card shows.
+    'review_min_rounds': 5,
+    'review_every_days': 90,
+    'review_delay_s': 1.6,
   };
 
   final Map<String, Object?> _values = Map.of(defaults);

@@ -12,6 +12,10 @@ Same SDK families as Rani, minus Firebase (no analytics or crash reports in Numo
 | Device or other IDs | Yes | Yes | Yes | Advertising, Fraud prevention / security / compliance | AdMob |
 | Purchase history | Yes | No (service provider) | Yes | App functionality, Analytics | RevenueCat |
 | Game info (other user-generated content: scores) | Yes | No | No (Play Games sign-in is optional) | App functionality | Play Games Services leaderboards |
+| Email address | Yes, only when the player types one in Send feedback | No | No (optional) | App functionality (a reply) | Shiva's Apps Script relay (his own Gmail) |
+| Other user-generated content (the feedback message) | Yes, only when the player sends one | No | No | App functionality | Shiva's Apps Script relay (his own Gmail) |
+
+- Send feedback (added 2026-10-24) posts the message, the optional email and the OS name/version to Shiva's relay over HTTPS. Declare the two rows above before the next Play upload, and add a feedback line to the shared privacy page.
 
 - Not ephemeral. Encrypted in transit: yes. No user accounts in the app (Play Games is Google's own sign-in).
 - Deletion: no account to delete; requests through the privacy-policy contact page. Players can remove leaderboard scores by deleting their Play Games data in the Play Games app.

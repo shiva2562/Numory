@@ -25,6 +25,7 @@ class PlayScreen extends StatefulWidget {
     this.juice,
     this.interstitials,
     this.afterRound,
+    this.onNewBest,
     this.now = DateTime.now,
     this.random,
   });
@@ -37,6 +38,10 @@ class PlayScreen extends StatefulWidget {
 
   /// Runs between rounds (the one-time Remove Ads offer).
   final Future<void> Function(BuildContext context)? afterRound;
+
+  /// A round ended on a new best: the app may ask the store for a rating.
+  /// [stillOnCard] tells whether the player is still on that result card.
+  final Future<void> Function({bool Function()? stillOnCard})? onNewBest;
 
   /// The clock (tests pass their own).
   final DateTime Function() now;
@@ -162,6 +167,16 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
     widget.juice?.done(newBest: _newBest);
     _showResult = true;
     unawaited(_submit(time));
+    if (_newBest) unawaited(_askForRating());
+  }
+
+  /// The happy moment for the store's rating sheet, only while this card
+  /// is still on screen (the next round starts at once on Play again).
+  Future<void> _askForRating() async {
+    final ask = widget.onNewBest;
+    if (ask == null) return;
+    final round = _round;
+    await ask(stillOnCard: () => mounted && identical(_round, round) && _showResult);
   }
 
   Future<void> _submit(Duration time) async {

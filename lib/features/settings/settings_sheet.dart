@@ -12,6 +12,9 @@ import '../../services/save.dart';
 import '../../theme.dart';
 import '../shop/remove_ads.dart';
 
+/// [onInvite]: the Invite friends row (the app shares the invite card); no
+/// row when null. [onFeedback]: the Send feedback row closes the sheet and
+/// calls it (the app opens the feedback form); no row when null.
 Future<void> showSettings(
   BuildContext context, {
   required Profile profile,
@@ -19,6 +22,8 @@ Future<void> showSettings(
   required AgePolicy agePolicy,
   required Leaderboards leaderboards,
   Juice? juice,
+  VoidCallback? onInvite,
+  VoidCallback? onFeedback,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -64,6 +69,25 @@ Future<void> showSettings(
                   title: Text(leaderboards.signedIn ? 'Signed in to Play Games' : 'Sign in to Play Games'),
                   subtitle: const Text('Your times go to the global leaderboards.'),
                   onTap: leaderboards.signedIn ? null : () => unawaited(leaderboards.signIn(interactive: true)),
+                ),
+              if (onInvite != null)
+                ListTile(
+                  key: const Key('invite'),
+                  leading: const Icon(Icons.group_add_rounded),
+                  title: const Text('Invite friends'),
+                  subtitle: const Text('Share a picture card with your best to beat.'),
+                  onTap: onInvite,
+                ),
+              if (onFeedback != null)
+                ListTile(
+                  key: const Key('feedback'),
+                  leading: const Icon(Icons.mail_rounded),
+                  title: const Text('Send feedback'),
+                  onTap: () {
+                    juice?.tap();
+                    Navigator.of(sheet).pop();
+                    onFeedback();
+                  },
                 ),
               if (canBuy)
                 ListTile(

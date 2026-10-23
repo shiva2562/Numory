@@ -24,6 +24,17 @@ const leaderboardEasyAndroid = 'CgkI-OHbuJMREAIQFQ';
 const leaderboardMediumAndroid = 'CgkI-OHbuJMREAIQFg';
 const leaderboardHardAndroid = 'CgkI-OHbuJMREAIQFw';
 
+/// Shiva's feedback relay (Stretchy Frog's `tools/feedback-relay.gs`
+/// deployed as a Google Apps Script web app, one for all his apps; the app
+/// name goes in the subject): Settings › Send feedback posts here and it
+/// emails him. The Send feedback row hides while empty.
+const feedbackRelayUrl =
+    'https://script.google.com/macros/s/AKfycbyuzcAbFAVDTL3C0BueyYhqCvhMoFydbnaoDK9bxq_gYvw0p8fFv3W4DtmH2g57GABdJQ/exec';
+
+/// Sent with each message; the relay ignores posts without it. Not a
+/// secret (it ships in the app), it only keeps stray posts out.
+const feedbackRelayToken = 'ff71aff42ecedef938dc39ea';
+
 /// The hosted privacy policy (Settings links to it; Play requires it).
 const privacyPolicyUrl = 'https://shiva2562.github.io/privacy.html';
 

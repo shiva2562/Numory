@@ -38,6 +38,10 @@ dependencies:
   games_services: ^5.3.0
   # The background music loop (the shell's sound effects use it too).
   audioplayers: ^6.8.1
+  # The store's own rating sheet after a new best (no question of ours first).
+  in_app_review: ^2.0.12
+  # Renders the invite card to a PNG for sharing.
+  screenshot: ^3.0.0
   # Sound, ads, age policy, analytics, interstitials, purchases and reviewer
   # codes, shared by every game (~/Desktop/projects/shivapps_shell).
   shivapps_shell:
