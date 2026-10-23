@@ -1,6 +1,8 @@
 /// Numory's look: neon on a synthwave night. A violet-black void, a magenta
 /// horizon, a cyan grid floor rolling toward the player, and every light
-/// source glowing. Orbitron for numbers and titles, Nunito for the rest.
+/// source glowing. Orbitron for titles and the clock, Nunito for the rest,
+/// board numbers included: Orbitron's square 1/7 and 2/8 blur together
+/// when a player is memorising them.
 library;
 
 import 'dart:math' as math;
@@ -59,6 +61,17 @@ TextStyle display({
   letterSpacing: spacing,
   fontFeatures: const [FontFeature.tabularFigures()],
   shadows: glowColor == null ? null : glow(glowColor, strength: glowStrength),
+);
+
+/// A number on the board: heavy Nunito, so every digit reads at a glance.
+TextStyle tile({double size = 26, Color color = kText, Color? glowColor}) => TextStyle(
+  fontFamily: _body,
+  fontSize: size,
+  fontWeight: FontWeight.w900,
+  fontVariations: const [FontVariation('wght', 900)],
+  color: color,
+  fontFeatures: const [FontFeature.tabularFigures()],
+  shadows: glowColor == null ? null : glow(glowColor, strength: 0.8),
 );
 
 TextStyle body({

@@ -18,6 +18,7 @@ class SaveData {
     this.mode = Mode.easy,
     Set<String>? flags,
     this.sound = true,
+    this.music = true,
     this.haptics = true,
     this.sessions = 0,
     Map<String, Object?>? extra,
@@ -35,6 +36,7 @@ class SaveData {
   Mode mode;
   final Set<String> flags;
   bool sound;
+  bool music;
   bool haptics;
 
   /// App launches, for "never in the first session" rules.
@@ -50,6 +52,7 @@ class SaveData {
     'mode': mode.id,
     'flags': flags.toList()..sort(),
     'sound': sound,
+    'music': music,
     'haptics': haptics,
     'sessions': sessions,
     'extra': extra,
@@ -63,6 +66,7 @@ class SaveData {
     mode: Mode.fromId(j['mode']),
     flags: {for (final f in (j['flags'] as List<Object?>?) ?? const []) f! as String},
     sound: j['sound'] as bool? ?? true,
+    music: j['music'] as bool? ?? true,
     haptics: j['haptics'] as bool? ?? true,
     sessions: (j['sessions'] as num?)?.toInt() ?? 0,
     extra: Map.of((j['extra'] as Map<String, Object?>?) ?? const {}),
@@ -138,6 +142,13 @@ class Profile extends ChangeNotifier implements ShellSave {
   bool get sound => data.sound;
   set sound(bool on) {
     data.sound = on;
+    unawaited(save());
+    notifyListeners();
+  }
+
+  bool get music => data.music;
+  set music(bool on) {
+    data.music = on;
     unawaited(save());
     notifyListeners();
   }

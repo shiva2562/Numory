@@ -4,6 +4,7 @@ import 'package:numory/app.dart';
 import 'package:numory/services/config.dart';
 import 'package:numory/services/juice.dart';
 import 'package:numory/services/leaderboards.dart';
+import 'package:numory/services/music.dart';
 import 'package:numory/services/save.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shivapps_shell/shivapps_shell.dart';
@@ -54,6 +55,7 @@ class TestRig {
         store: store,
       ),
       leaderboards: b,
+      music: Music(profile: profile, player: FakeMusicPlayer()),
     );
     return TestRig._(services, ads, sounds, b);
   }

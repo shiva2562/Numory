@@ -46,6 +46,12 @@ Future<void> showSettings(
                 onChanged: (v) => profile.sound = v,
               ),
               SwitchListTile(
+                key: const Key('music'),
+                title: const Text('Music'),
+                value: profile.music,
+                onChanged: (v) => profile.music = v,
+              ),
+              SwitchListTile(
                 key: const Key('haptics'),
                 title: const Text('Vibration'),
                 value: profile.haptics,

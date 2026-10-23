@@ -49,7 +49,7 @@ class PlayScreen extends StatefulWidget {
 }
 
 /// What the result card shows about the leaderboard.
-enum RankState { loading, ranked, notSignedIn, tooFast, unavailable, failed }
+enum RankState { loading, ranked, unranked, notSignedIn, tooFast, unavailable, failed }
 
 class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
   late Round _round;
@@ -176,7 +176,11 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
       state = RankState.notSignedIn;
     } else {
       info = await boards.submit(widget.mode, time);
-      state = info == null ? RankState.failed : RankState.ranked;
+      state = info == null
+          ? RankState.failed
+          : info.rank == null
+          ? RankState.unranked
+          : RankState.ranked;
     }
     if (!mounted) return;
     setState(() {
@@ -206,7 +210,7 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
   void _share() {
     widget.juice?.tap();
     final time = formatTime(_round.elapsed(widget.now()));
-    final rank = _rankInfo == null ? '' : ' (#${_rankInfo!.rank} in the world)';
+    final rank = _rankInfo?.rank == null ? '' : ' (#${_rankInfo!.rank} in the world)';
     unawaited(
       SharePlus.instance.share(
         ShareParams(
@@ -285,6 +289,7 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
                                                     unawaited(_submit(_round.elapsed(widget.now())));
                                                   }
                                                 },
+                                                onShowBoard: () => unawaited(widget.leaderboards.show(widget.mode)),
                                               )
                                             : _LoseCard(round: _round, onAgain: _again),
                                       ),
@@ -469,7 +474,7 @@ class _Cell extends StatelessWidget {
               : FittedBox(
                   child: Padding(
                     padding: const EdgeInsets.all(6),
-                    child: Text(label, style: display(size: 26, color: labelColor, spacing: 0, glowColor: labelGlow)),
+                    child: Text(label, style: tile(color: labelColor, glowColor: labelGlow)),
                   ),
                 ),
         ),
@@ -625,6 +630,7 @@ class _WinCard extends StatelessWidget {
     required this.onAgain,
     required this.onShare,
     required this.onSignIn,
+    required this.onShowBoard,
   });
   final Duration time;
   final Duration best;
@@ -634,6 +640,7 @@ class _WinCard extends StatelessWidget {
   final VoidCallback onAgain;
   final VoidCallback onShare;
   final VoidCallback onSignIn;
+  final VoidCallback onShowBoard;
 
   @override
   Widget build(BuildContext context) => _Card(
@@ -654,7 +661,7 @@ class _WinCard extends StatelessWidget {
       ),
       if (!newBest) Text('Your best ${formatTime(best)} s', style: body(color: kMuted)),
       const SizedBox(height: 14),
-      _RankChip(rank: rank, info: rankInfo, onSignIn: onSignIn),
+      _RankChip(rank: rank, info: rankInfo, onSignIn: onSignIn, onShowBoard: onShowBoard),
       const SizedBox(height: 20),
       NeonButton(key: const Key('again'), label: 'Play again', onPressed: onAgain),
       const SizedBox(height: 8),
@@ -669,10 +676,11 @@ class _WinCard extends StatelessWidget {
 }
 
 class _RankChip extends StatelessWidget {
-  const _RankChip({required this.rank, required this.info, required this.onSignIn});
+  const _RankChip({required this.rank, required this.info, required this.onSignIn, required this.onShowBoard});
   final RankState rank;
   final RankInfo? info;
   final VoidCallback onSignIn;
+  final VoidCallback onShowBoard;
 
   @override
   Widget build(BuildContext context) {
@@ -687,6 +695,16 @@ class _RankChip extends StatelessWidget {
           Text('#${info!.rank}', key: const Key('rank'), style: display(size: 26, color: const Color(0xFFFFD6F5), spacing: 1, glowColor: kMagenta)),
           Text('IN THE WORLD · ALL TIME', style: body(size: 11, color: kMuted, weight: FontWeight.w900)),
         ],
+      ),
+      // Play Games' board screen has the "Show off your score" switch.
+      RankState.unranked => TextButton(
+        key: const Key('rank-hidden'),
+        onPressed: onShowBoard,
+        child: Text(
+          'Sent to the leaderboard. Make your Play Games activity public to see your world rank.',
+          textAlign: TextAlign.center,
+          style: body(size: 13, color: kCyan),
+        ),
       ),
       RankState.notSignedIn => TextButton(
         key: const Key('rank-sign-in'),

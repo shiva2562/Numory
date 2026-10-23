@@ -117,6 +117,22 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
+  testWidgets('hidden game activity: score sent, the card links to the board instead of a rank', (tester) async {
+    phone(tester);
+    final boards = FakeLeaderboards(rankHidden: true);
+    final cells = await open(tester, Mode.easy, boards: boards);
+    for (final c in cells) {
+      await tapCell(tester, c, afterMs: 300);
+    }
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.byKey(const Key('rank')), findsNothing);
+    expect(find.textContaining('Couldn’t reach'), findsNothing);
+    expect(boards.bests, contains(Mode.easy));
+    await tester.tap(find.byKey(const Key('rank-hidden')));
+    expect(boards.shown, [Mode.easy]);
+    await tester.pump(const Duration(seconds: 1));
+  });
+
   testWidgets('no leaderboard IDs: no rank card at all', (tester) async {
     phone(tester);
     final cells = await open(tester, Mode.easy, boards: FakeLeaderboards(available: false));

@@ -22,3 +22,5 @@
 - Round: the floor stands still (no repaint behind the board, nothing pulling the eye while memorising); neon board; sparks on every correct tap, a 70-spark burst and a flash on the last; wrong tap shakes the board with a red glitch; synthwave synth notes on a minor pentatonic (never a sour note).
 - Cost: grid glow uses wide faint strokes, not blur; reduce-motion turns off the flicker, bob, floor, sparks and shake.
 - Play Games: only a player's tap opens Play's sign-in UI; launch and after-round checks are silent (the plugin's signIn() is interactive and popped a Play dialog at launch).
+- Board numbers in heavy Nunito, not Orbitron: Orbitron's 1/7 and 2/8 looked alike while memorising (Shiva, 2026-10-23). Orbitron stays on titles and the clock.
+- Background music: one synthesized synthwave loop (`tools/make_music.py`, 40 s, Am-F-C-G at 96 BPM), quiet under the effects, own Music switch, stops while the app is hidden (Shiva, 2026-10-23).

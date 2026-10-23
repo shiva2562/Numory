@@ -15,13 +15,11 @@ import '../release_config.dart';
 
 /// Where a submitted time puts the player.
 class RankInfo {
-  const RankInfo({required this.rank, required this.best});
+  const RankInfo({required this.rank});
 
-  /// 1-based all-time rank in the world.
-  final int rank;
-
-  /// The player's best time on the board.
-  final Duration best;
+  /// 1-based all-time rank in the world; null when the score went in but
+  /// Play Games won't rank it (the player hides their game activity).
+  final int? rank;
 }
 
 abstract class Leaderboards extends ChangeNotifier {
@@ -34,7 +32,7 @@ abstract class Leaderboards extends ChangeNotifier {
   Future<bool> signIn({bool interactive = false});
 
   /// Submits [time] for [mode] and returns the player's rank, or null when
-  /// Play Games couldn't tell us.
+  /// the score couldn't be sent.
   Future<RankInfo?> submit(Mode mode, Duration time);
 
   /// Opens Play Games' own screen for [mode]'s board.
@@ -99,17 +97,23 @@ class PlayGamesLeaderboards extends Leaderboards {
     final id = leaderboardId(mode);
     try {
       await gs.Leaderboards.submitScore(score: gs.Score(androidLeaderboardID: id, value: centis(time) * 10));
+    } on Object catch (e) {
+      debugPrint('Leaderboard submit failed: $e');
+      return null;
+    }
+    // The score is in. A player who hides their game activity is left off
+    // the public board, so Play Games gives them no rank.
+    try {
       final me = await gs.Leaderboards.getPlayerScoreObject(
         androidLeaderboardID: id,
         scope: gs.PlayerScope.global,
         timeScope: gs.TimeScope.allTime,
       );
-      if (me == null || me.rank <= 0) return null;
-      return RankInfo(rank: me.rank, best: Duration(milliseconds: me.rawScore));
+      if (me != null && me.rank > 0) return RankInfo(rank: me.rank);
     } on Object catch (e) {
-      debugPrint('Leaderboard submit failed: $e');
-      return null;
+      debugPrint('Leaderboard rank failed: $e');
     }
+    return const RankInfo(rank: null);
   }
 
   @override
@@ -126,12 +130,15 @@ class PlayGamesLeaderboards extends Leaderboards {
 /// For tests and debug builds without IDs: remembers bests, ranks by a
 /// made-up crowd so the result card can be seen.
 class FakeLeaderboards extends Leaderboards {
-  FakeLeaderboards({this.available = true, bool signedIn = true}) {
+  FakeLeaderboards({this.available = true, bool signedIn = true, this.rankHidden = false}) {
     _signedIn = signedIn;
   }
 
   @override
   final bool available;
+
+  /// Plays a player whose game activity is hidden: scores go in, no rank.
+  final bool rankHidden;
   late bool _signedIn;
   final Map<Mode, Duration> bests = {};
   final List<Mode> shown = [];
@@ -154,10 +161,11 @@ class FakeLeaderboards extends Leaderboards {
     final old = bests[mode];
     final best = old == null || time < old ? time : old;
     bests[mode] = best;
+    if (rankHidden) return const RankInfo(rank: null);
     // About one player per 10 ms over a typical time for the mode.
     final typical = {Mode.easy: 1200, Mode.medium: 2800, Mode.hard: 7000}[mode]!;
     final rank = 1 + ((best.inMilliseconds - typical / 3).clamp(0, 1e9) / 10).round();
-    return RankInfo(rank: rank, best: best);
+    return RankInfo(rank: rank);
   }
 
   @override

@@ -36,6 +36,8 @@ dependencies:
   firebase_core: ^4.15.0
   firebase_crashlytics: ^5.4.0
   games_services: ^5.3.0
+  # The background music loop (the shell's sound effects use it too).
+  audioplayers: ^6.8.1
   # Sound, ads, age policy, analytics, interstitials, purchases and reviewer
   # codes, shared by every game (~/Desktop/projects/shivapps_shell).
   shivapps_shell:

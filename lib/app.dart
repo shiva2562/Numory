@@ -14,6 +14,7 @@ import 'release_config.dart';
 import 'services/crash_reports.dart';
 import 'services/juice.dart';
 import 'services/leaderboards.dart';
+import 'services/music.dart';
 import 'services/save.dart';
 import 'shell_setup.dart';
 import 'theme.dart';
@@ -27,6 +28,7 @@ class AppServices {
     AgePolicy? agePolicy,
     InterstitialFlow? interstitials,
     Leaderboards? leaderboards,
+    Music? music,
   }) {
     this.agePolicy = agePolicy ?? AgePolicy.forSave(profile);
     this.store = store ?? _defaultStore(profile);
@@ -39,6 +41,7 @@ class AppServices {
           store: this.store,
         );
     this.leaderboards = leaderboards ?? _defaultLeaderboards();
+    this.music = music ?? Music(profile: profile);
   }
 
   final Profile profile;
@@ -49,6 +52,7 @@ class AppServices {
   late final Store store;
   late final InterstitialFlow interstitials;
   late final Leaderboards leaderboards;
+  late final Music music;
 
   /// RevenueCat; in debug builds without its key, a pretend store that "buys"
   /// instantly. Release builds without a key sell nothing.
@@ -122,13 +126,25 @@ class _RootState extends State<_Root> {
   late final Juice juice =
       s.juice ?? Juice(soundOn: () => s.profile.sound, hapticsOn: () => s.profile.haptics);
   bool _networkStarted = false;
+  late final AppLifecycleListener _lifecycle;
 
   @override
   void initState() {
     super.initState();
+    s.music.visible = true;
+    _lifecycle = AppLifecycleListener(
+      onShow: () => s.music.visible = true,
+      onHide: () => s.music.visible = false,
+    );
     s.profile.startSession();
     if (!s.agePolicy.needsSelection) _startNetworkServices();
     WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(juice.preload()));
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
   }
 
   void _startNetworkServices() {
