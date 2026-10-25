@@ -9,7 +9,7 @@ IDs: `store/ids.md`. Play Console answers: `store/data-safety.md`. Listing draft
 - **The new upload key is accepted from 2026-10-24 21:42 IST** (Play's upload key reset). Uploading earlier fails.
 
 ## Steps from here
-0. Before the upload: add the two Send feedback rows (email address, other user-generated content) to Data safety (`store/data-safety.md`), and a feedback line to the shared privacy page.
+0. Before the upload: add the two Send feedback rows (email address, other user-generated content) to Data safety (`store/data-safety.md`). The privacy page already covers feedback.
 1. After 2026-10-24 21:42 IST: Shiva uploads the AAB to **Internal testing** and installs it from the opt-in link on his phone.
 2. On the phone: a round in each mode, Play Games sign-in from the result card, a leaderboard score, Share, Settings.
 3. Create the one-time product `remove_ads` at US $2.99 (Play allows it once a billing build is uploaded); activate; check RevenueCat shows it; license-test purchase and restore.
