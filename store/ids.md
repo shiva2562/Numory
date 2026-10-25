@@ -101,3 +101,18 @@ RevenueCat offering: https://app.revenuecat.com/projects/0ae737ab/product-catalo
 - Play Games credential ID: CgkI-OHbuJMREAIQGA
 - RevenueCat: service account revenuecat-service-account@tressdna has Numory app permissions; credentials JSON uploaded in RevenueCat (Shiva).
 - App content (Data safety, privacy, ads, advertising ID, audience, rating) filled by Shiva.
+
+## Codex pass 2026-10-25
+
+- Stopped before Part 1: browser control is unavailable in this session. No browser-control tool was exposed, and the listed browser skill could not be loaded. Exact filesystem error: `cat: /Users/shiva/.codex/plugins/cache/openai-bundled/browser/26.1021.31345/skills/control-in-app-browser/SKILL.md: No such file or directory`. A search of installed skill directories found no browser or Chrome control skill.
+- Data safety saved: no; existing answers were not inspected or changed.
+- Internal release: not attempted; current Console status unverified; tester opt-in link unavailable.
+- Play product `remove_ads`: not attempted; current Console status unverified.
+- Console warnings/errors: unavailable because the Console could not be accessed. No review submission or other external changes performed.
+
+## Claude pass 2026-10-25 (built-in browser)
+- Data safety saved: added Email address and Other user-generated content (collected, not shared, optional, not ephemeral, App functionality). Not sent for review yet ("Changes not yet sent for review").
+- Internal testing: 2.0.0 (100) published, "Available to internal testers", tester list Testlisters (6). Opt-in link: https://play.google.com/apps/internaltest/4698175732356436303
+- Release warnings: government apps declaration not completed; 2,646 old devices dropped (minSdk 24 vs 16).
+- remove_ads: Active. Name Remove Ads; purchase option `buy` (Buy, backwards compatible), USD 2.99 converted for 174 countries (INR 280, GBP 2.69).
+- License testing: list firstesters selected (includes Shiva), RESPOND_NORMALLY. Play Games testers: Shiva already listed; internal track linked.
