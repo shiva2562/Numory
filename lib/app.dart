@@ -16,11 +16,13 @@ import 'features/settings/settings_sheet.dart';
 import 'features/share/invite_card.dart';
 import 'features/shop/remove_ads.dart';
 import 'release_config.dart';
+import 'services/config.dart';
 import 'services/crash_reports.dart';
 import 'services/feedback.dart';
 import 'services/juice.dart';
 import 'services/leaderboards.dart';
 import 'services/music.dart';
+import 'services/offers.dart';
 import 'services/save.dart';
 import 'shell_setup.dart';
 import 'theme.dart';
@@ -115,6 +117,11 @@ class AppServices {
     await requestReview();
   }
 
+  /// A release build with a pretend store (`--dart-define=FAKE_STORE=true`),
+  /// for trying the offers on a phone before the store has a key for it.
+  /// Store builds never set it.
+  static const _fakeStore = bool.fromEnvironment('FAKE_STORE');
+
   /// RevenueCat; in debug builds without its key, a pretend store that "buys"
   /// instantly. Release builds without a key sell nothing.
   static Store _defaultStore(Profile profile) {
@@ -124,7 +131,7 @@ class AppServices {
       androidKey: revenueCatAndroidKey,
       iosKey: revenueCatIosKey,
     );
-    if (real.available || kReleaseMode) return real;
+    if (real.available || (kReleaseMode && !_fakeStore)) return real;
     return FakeStore(owned: profile.entitlements, onChange: profile.setEntitlements);
   }
 
@@ -136,7 +143,7 @@ class AppServices {
     return FakeLeaderboards();
   }
 
-  static Future<AppServices> load() async => AppServices(profile: Profile(store: await SaveStore.open()));
+  static Future<AppServices> load() async => AppServices(profile: Profile(store: await SaveStore.open(), config: GameConfig.forBuild()));
 }
 
 class NumoryApp extends StatefulWidget {
@@ -244,14 +251,50 @@ class _RootState extends State<_Root> {
     WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(s.interstitials.launched(inTutorial: false)));
   }
 
-  /// The one-time Remove Ads offer, once enough rounds are played.
-  Future<void> _afterRound(BuildContext context) async {
-    final p = s.profile;
-    if (p.rounds < p.config.firstOfferRound || p.hasFlag('offer_shown')) return;
-    if (!s.store.available || !s.agePolicy.canServeAds || s.store.owns(Products.noAds)) return;
-    p.setFlag('offer_shown');
-    await showRemoveAdsOffer(context, s.store, juice: juice);
+  late final OfferRules _offerRules = OfferRules.of(s.profile.config);
+  late final OfferState _offers = OfferState.fromJson(s.profile.extra['offers']);
+
+  void _saveOffers() {
+    s.profile.extra['offers'] = _offers.toJson();
+    unawaited(s.profile.save());
   }
+
+  /// A round is over and Play again or Home was tapped; [adPlayed] says an
+  /// interstitial just closed. The Remove Ads card may follow it: the first
+  /// after the 2nd interstitial, then every 2nd (see `offers.dart`). This is a
+  /// pause between rounds, never mid-play, and the next round waits for it.
+  Future<void> _afterRound(BuildContext context, {required bool adPlayed}) async {
+    if (!adPlayed) return;
+    _offers.adPlayed();
+    _saveOffers();
+    final due = removeAdsAfterAdDue(
+      rules: _offerRules,
+      state: _offers,
+      now: DateTime.now(),
+      session: s.profile.sessions,
+      owned: s.store.owns(Products.noAds),
+      seesAds: s.agePolicy.canServeAds,
+      underThirteen: s.agePolicy.group == AgeGroup.under13,
+      storeReady: s.store.available && s.store.price(Products.removeAdsPackage) != null,
+    );
+    if (!due) return;
+    // A breath after the ad, so a tap meant for the ad's close doesn't land on the card.
+    await Future<void>.delayed(_offerRules.delay);
+    if (!context.mounted) return;
+    _offers.removeAdsShown(DateTime.now());
+    _saveOffers();
+    final bought = await showRemoveAdsOffer(context, s.store, place: OfferPlace.afterAd, juice: juice);
+    if (!bought) {
+      // Not now, or a swipe away: the next card waits twice as many ads.
+      _offers.removeAdsDeclined();
+      _saveOffers();
+    }
+  }
+
+  /// The end card's **No ads** button: the same card, asked for by the
+  /// player. Closing it is not a "Not now" for the pop-ups.
+  Future<void> _noAdsDoor(BuildContext context) =>
+      showRemoveAdsOffer(context, s.store, place: OfferPlace.endCard, logShown: false, juice: juice);
 
   void _play(Mode mode) => unawaited(
     Navigator.of(context).push(
@@ -267,6 +310,9 @@ class _RootState extends State<_Root> {
           juice: juice,
           interstitials: s.interstitials,
           afterRound: _afterRound,
+          store: s.store,
+          seesAds: s.agePolicy.canServeAds,
+          onNoAds: _noAdsDoor,
           onNewBest: s.newBest,
         ),
       ),

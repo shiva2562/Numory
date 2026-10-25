@@ -45,6 +45,7 @@ class TestRig {
     Future<void> Function()? requestReview,
     Sharer? share,
     Future<Uint8List> Function(InviteCard card)? renderInvite,
+    InterstitialRules rules = const InterstitialRules(minLevel: 10, everyNLevels: 3, minSeconds: 180),
   }) async {
     SharedPreferences.setMockInitialValues(prefs);
     final profile = Profile(store: await SaveStore.open(), config: config);
@@ -60,7 +61,7 @@ class TestRig {
       store: store,
       interstitials: InterstitialFlow(
         save: profile,
-        rules: const InterstitialRules(minLevel: 10, everyNLevels: 3, minSeconds: 180),
+        rules: rules,
         ads: ads,
         store: store,
       ),

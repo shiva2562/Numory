@@ -36,15 +36,25 @@ Future<void> restorePurchases(BuildContext context, Store store) async {
   showToast(context, any ? 'Purchases restored' : 'No purchases to restore', icon: any ? Icons.check_rounded : null);
 }
 
-/// The one-time offer, after `first_offer_round` rounds.
-Future<void> showRemoveAdsOffer(BuildContext context, Store store, {Juice? juice}) {
-  Analytics.instance.offerShown('remove_ads', 'offer');
-  return showModalBottomSheet<void>(
+/// The Remove Ads card: what goes away, the store's own price, **Remove ads**
+/// and one plain **Not now**. No timer, no guilt. [place] is where it came
+/// from (`OfferPlace`), for analytics; [logShown] is false when the screen
+/// that opened it already logged the show (the end card's button). True once
+/// the player has bought; false for Not now, a swipe away or a failed buy.
+Future<bool> showRemoveAdsOffer(
+  BuildContext context,
+  Store store, {
+  required String place,
+  bool logShown = true,
+  Juice? juice,
+}) async {
+  if (logShown) Analytics.instance.offerShown('remove_ads', place);
+  final bought = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     builder: (sheet) => SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
         child: ListenableBuilder(
           listenable: store,
           builder: (sheet, _) {
@@ -53,44 +63,93 @@ Future<void> showRemoveAdsOffer(BuildContext context, Store store, {Juice? juice
               key: const Key('remove-ads-offer'),
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.block_rounded, color: kGold, size: 44),
-                const SizedBox(height: 12),
-                Text('Play without interruptions', textAlign: TextAlign.center, style: body(size: 22, weight: FontWeight.w900)),
-                const SizedBox(height: 6),
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF12061F),
+                    border: Border.all(color: kMagenta, width: 2),
+                    boxShadow: boxGlow(kMagenta, strength: 0.7),
+                  ),
+                  child: Icon(Icons.block_rounded, color: kText, size: 32, shadows: glow(kMagenta, strength: 0.6)),
+                ),
+                const SizedBox(height: 16),
                 Text(
-                  'Remove the ads between rounds, once and for all.',
+                  'NO MORE ADS',
+                  textAlign: TextAlign.center,
+                  style: display(size: 22, spacing: 2, glowColor: kMagenta, glowStrength: 0.6),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Play without the ads between rounds.\nOne purchase, yours for good.',
                   textAlign: TextAlign.center,
                   style: body(color: kMuted),
                 ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: FilledButton(
-                    key: const Key('offer-buy'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: kTile,
-                      foregroundColor: kInk,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      textStyle: body(size: 17, weight: FontWeight.w900),
-                    ),
-                    onPressed: () async {
-                      juice?.tap();
-                      if (await buyRemoveAds(sheet, store, place: 'offer', juice: juice) && sheet.mounted) {
-                        Navigator.of(sheet).pop();
-                      }
-                    },
-                    child: Text(price == null ? 'Remove ads' : 'Remove ads · $price'),
+                if (price != null) ...[
+                  const SizedBox(height: 14),
+                  Text(
+                    price,
+                    key: const Key('offer-price'),
+                    style: display(size: 28, spacing: 1, color: kGold, glowColor: kGold, glowStrength: 0.6),
                   ),
+                ],
+                const SizedBox(height: 18),
+                NeonButton(
+                  key: const Key('offer-buy'),
+                  label: 'Remove ads',
+                  onPressed: () async {
+                    juice?.tap();
+                    if (await buyRemoveAds(sheet, store, place: place, juice: juice) && sheet.mounted) {
+                      Navigator.of(sheet).pop(true);
+                    }
+                  },
                 ),
+                const SizedBox(height: 4),
                 TextButton(
                   key: const Key('offer-later'),
-                  onPressed: () => Navigator.of(sheet).pop(),
+                  onPressed: () => Navigator.of(sheet).pop(false),
                   child: Text('Not now', style: body(color: kMuted)),
                 ),
               ],
             );
           },
+        ),
+      ),
+    ),
+  );
+  return bought ?? false;
+}
+
+/// The small **No ads** button on the end card: a door to the same card, for
+/// a player who sees ads. Quiet on purpose; it never moves or pulses.
+class NoAdsButton extends StatelessWidget {
+  const NoAdsButton({super.key, required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: 'No ads',
+    child: GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: kViolet.withValues(alpha: 0.7)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.block_rounded, size: 14, color: kMuted),
+              const SizedBox(width: 6),
+              Text('No ads', style: body(size: 13, color: kMuted, weight: FontWeight.w800)),
+            ],
+          ),
         ),
       ),
     ),

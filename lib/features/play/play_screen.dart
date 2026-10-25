@@ -11,8 +11,10 @@ import '../../app_info.dart';
 import '../../core/round.dart';
 import '../../services/juice.dart';
 import '../../services/leaderboards.dart';
+import '../../services/offers.dart';
 import '../../services/save.dart';
 import '../../theme.dart';
+import '../shop/remove_ads.dart';
 import 'sparks.dart';
 
 /// One round after another in [mode], until the player goes home.
@@ -25,6 +27,9 @@ class PlayScreen extends StatefulWidget {
     this.juice,
     this.interstitials,
     this.afterRound,
+    this.store,
+    this.seesAds = false,
+    this.onNoAds,
     this.onNewBest,
     this.now = DateTime.now,
     this.random,
@@ -36,8 +41,17 @@ class PlayScreen extends StatefulWidget {
   final Juice? juice;
   final InterstitialFlow? interstitials;
 
-  /// Runs between rounds (the one-time Remove Ads offer).
-  final Future<void> Function(BuildContext context)? afterRound;
+  /// Runs between rounds, after the interstitial (if one played) closed: the
+  /// Remove Ads card may follow it. [adPlayed] is whether one played.
+  final Future<void> Function(BuildContext context, {required bool adPlayed})? afterRound;
+
+  /// Remove Ads lives here; the end card's **No ads** button shows while the
+  /// player [seesAds] and has not bought it. Both null/false: no button.
+  final Store? store;
+  final bool seesAds;
+
+  /// The **No ads** button was tapped: the app opens the Remove Ads card.
+  final Future<void> Function(BuildContext context)? onNoAds;
 
   /// A round ended on a new best: the app may ask the store for a rating.
   /// [stillOnCard] tells whether the player is still on that result card.
@@ -159,15 +173,47 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
       widget.profile.roundLost();
       // A beat to see the red and gold squares before the card covers them.
       Timer(const Duration(milliseconds: 700), () {
-        if (mounted && _round.state == RoundState.lost) setState(() => _showResult = true);
+        if (mounted && _round.state == RoundState.lost) {
+          setState(() => _showResult = true);
+          _endCardShown();
+        }
       });
       return;
     }
     _newBest = widget.profile.roundWon(widget.mode, time);
     widget.juice?.done(newBest: _newBest);
     _showResult = true;
+    _endCardShown();
     unawaited(_submit(time));
     if (_newBest) unawaited(_askForRating());
+  }
+
+  /// Whether the end card carries the **No ads** button.
+  bool get _canOfferNoAds {
+    final st = widget.store;
+    return st != null && widget.seesAds && st.available && !st.owns(Products.noAds);
+  }
+
+  /// The end card appeared: if it carries **No ads**, that is an offer shown.
+  void _endCardShown() {
+    if (_canOfferNoAds) Analytics.instance.offerShown('remove_ads', OfferPlace.endCard);
+  }
+
+  Widget? _noAdsButton() {
+    final st = widget.store;
+    if (st == null) return null;
+    return ListenableBuilder(
+      listenable: st,
+      builder: (context, _) => _canOfferNoAds
+          ? NoAdsButton(
+              key: const Key('no-ads'),
+              onTap: () {
+                widget.juice?.tap();
+                unawaited(widget.onNoAds?.call(context));
+              },
+            )
+          : const SizedBox.shrink(),
+    );
   }
 
   /// The happy moment for the store's rating sheet, only while this card
@@ -206,8 +252,8 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
 
   /// Between rounds: maybe an interstitial, maybe the one-time offer.
   Future<void> _between() async {
-    await widget.interstitials?.levelFinished(widget.profile.rounds, beforeReveal: false);
-    if (mounted) await widget.afterRound?.call(context);
+    final adPlayed = await widget.interstitials?.levelFinished(widget.profile.rounds, beforeReveal: false) ?? false;
+    if (mounted) await widget.afterRound?.call(context, adPlayed: adPlayed);
   }
 
   Future<void> _again() async {
@@ -305,8 +351,9 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
                                                   }
                                                 },
                                                 onShowBoard: () => unawaited(widget.leaderboards.show(widget.mode)),
+                                                footer: _noAdsButton(),
                                               )
-                                            : _LoseCard(round: _round, onAgain: _again),
+                                            : _LoseCard(round: _round, onAgain: _again, footer: _noAdsButton()),
                                       ),
                                   ],
                                 );
@@ -646,6 +693,7 @@ class _WinCard extends StatelessWidget {
     required this.onShare,
     required this.onSignIn,
     required this.onShowBoard,
+    this.footer,
   });
   final Duration time;
   final Duration best;
@@ -656,6 +704,9 @@ class _WinCard extends StatelessWidget {
   final VoidCallback onShare;
   final VoidCallback onSignIn;
   final VoidCallback onShowBoard;
+
+  /// The small **No ads** button, below everything the player taps to go on.
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) => _Card(
@@ -686,6 +737,7 @@ class _WinCard extends StatelessWidget {
         icon: const Icon(Icons.ios_share_rounded, size: 18, color: kCyan),
         label: Text('Share', style: body(color: kCyan)),
       ),
+      ?footer,
     ],
   );
 }
@@ -754,9 +806,12 @@ class _RankChip extends StatelessWidget {
 }
 
 class _LoseCard extends StatelessWidget {
-  const _LoseCard({required this.round, required this.onAgain});
+  const _LoseCard({required this.round, required this.onAgain, this.footer});
   final Round round;
   final VoidCallback onAgain;
+
+  /// The small **No ads** button, below everything the player taps to go on.
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) => _Card(
@@ -781,6 +836,8 @@ class _LoseCard extends StatelessWidget {
       ),
       const SizedBox(height: 20),
       NeonButton(key: const Key('again'), label: 'Try again', onPressed: onAgain),
+      if (footer != null) const SizedBox(height: 8),
+      ?footer,
     ],
   );
 }

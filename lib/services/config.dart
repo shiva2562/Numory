@@ -10,6 +10,21 @@ class GameConfig {
     }
   }
 
+  /// A build for testing the pop-ups on a phone: `--dart-define=FAST_PACING=true`
+  /// shows interstitials every round (15 s apart) and lifts the daily offer
+  /// caps, so the cards can be seen in a minute. The order of the offers
+  /// (2nd ad, every 2nd, doubling) is unchanged. Store builds don't set it.
+  factory GameConfig.forBuild() => GameConfig(const bool.fromEnvironment('FAST_PACING') ? fastPacing : const {});
+
+  static const Map<String, Object?> fastPacing = {
+    'interstitial_min_rounds': 1,
+    'interstitial_every_n_rounds': 1,
+    'interstitial_min_seconds': 15,
+    'offer_min_gap_s': 15,
+    'offer_remove_ads_per_day': 50,
+    'offer_per_day': 50,
+  };
+
   static const Map<String, Object?> defaults = {
     // Interstitials count finished or failed rounds as "levels" (shell
     // InterstitialFlow): never in the first session, not before this many
@@ -22,8 +37,19 @@ class GameConfig {
     'min_valid_seconds_easy': 0.4,
     'min_valid_seconds_medium': 0.9,
     'min_valid_seconds_hard': 1.8,
-    // The one-time Remove Ads offer, after this many rounds.
-    'first_offer_round': 25,
+    // Pop-up purchase offers (DESIGN.md "Purchase offers", lib/services/
+    // offers.dart). The Remove Ads card follows an interstitial: the first
+    // after the 2nd one, then after every 2nd, doubled by each "Not now" in
+    // a row (at most 5 doublings). At most 2 Remove Ads cards and 3 pop-up
+    // offers a day, 3 minutes apart, never in the first session.
+    'offer_first_after_ads': 2,
+    'offer_every_ads': 2,
+    'offer_remove_ads_per_day': 2,
+    'offer_per_day': 3,
+    'offer_min_gap_s': 180,
+    'offer_max_doublings': 5,
+    // A breath between the ad closing and the card appearing.
+    'offer_delay_ms': 600,
     // The store's own rating sheet on a new best: from this round on, at
     // most once in this many days, this long after the result card shows.
     'review_min_rounds': 5,
@@ -39,7 +65,6 @@ class GameConfig {
   int get interstitialMinRounds => intOf('interstitial_min_rounds');
   int get interstitialEveryNRounds => intOf('interstitial_every_n_rounds');
   int get interstitialMinSeconds => intOf('interstitial_min_seconds');
-  int get firstOfferRound => intOf('first_offer_round');
 
   /// The fastest time [mode] may submit to its leaderboard.
   Duration minValidTime(Mode mode) =>
