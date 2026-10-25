@@ -73,11 +73,14 @@ PODS:
     - Flutter
   - flutter_timezone (0.0.1):
     - Flutter
-  - Google-Mobile-Ads-SDK (13.10.0):
-    - GoogleUserMessagingPlatform (>= 1.1)
-  - google_mobile_ads (9.1.0):
+  - games_services (5.0.1):
     - Flutter
-    - Google-Mobile-Ads-SDK (~> 13.7)
+    - FlutterMacOS
+  - Google-Mobile-Ads-SDK (13.11.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - google_mobile_ads (9.2.0):
+    - Flutter
+    - Google-Mobile-Ads-SDK (~> 13.11)
     - webview_flutter_wkwebview
   - GoogleAdsOnDeviceConversion (3.7.0):
     - GoogleUtilities/Environment (~> 8.1)
@@ -149,12 +152,12 @@ PODS:
   - PromisesObjC (2.4.1)
   - PromisesSwift (2.4.1):
     - PromisesObjC (= 2.4.1)
-  - purchases_flutter (10.14.0):
+  - purchases_flutter (10.18.1):
     - Flutter
-    - PurchasesHybridCommon (= 19.5.0)
-  - PurchasesHybridCommon (19.5.0):
-    - RevenueCat (= 5.92.0)
-  - RevenueCat (5.92.0)
+    - PurchasesHybridCommon (= 19.15.0)
+  - PurchasesHybridCommon (19.15.0):
+    - RevenueCat (= 5.98.0)
+  - RevenueCat (5.98.0)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -174,6 +177,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_timezone (from `.symlinks/plugins/flutter_timezone/ios`)
+  - games_services (from `.symlinks/plugins/games_services/darwin`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
@@ -221,6 +225,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   flutter_timezone:
     :path: ".symlinks/plugins/flutter_timezone/ios"
+  games_services:
+    :path: ".symlinks/plugins/games_services/darwin"
   google_mobile_ads:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   in_app_review:
@@ -255,8 +261,9 @@ SPEC CHECKSUMS:
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   flutter_local_notifications: eda81afddbf18f8589f6ec069ce593c4c6378769
   flutter_timezone: ac3da59ac941ff1c98a2e1f0293420e020120282
-  Google-Mobile-Ads-SDK: 8e764c4990ef82c2727fd32e0c4143817b443603
-  google_mobile_ads: 8c61669fb8e2ba987b0b7116b5265ba647cdca0c
+  games_services: 76bef7d2e685bb605e2d16a18b255462ea1aaeb2
+  Google-Mobile-Ads-SDK: 09d0868abe43b9f851b7b340a245679f0eafc96c
+  google_mobile_ads: c8f164ff415b8440e50b0102508d148c7fbea07f
   GoogleAdsOnDeviceConversion: 41f168313b305040f4af27093d3c0af5ba46a9a3
   GoogleAppMeasurement: f2f676480e4c97936df934aa181bc29caea46975
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
@@ -267,11 +274,11 @@ SPEC CHECKSUMS:
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   PromisesSwift: 217dea0fd5d2ad65222a109c48698add13cc1c5b
-  purchases_flutter: 0dab80d566db565a1c8d900f42135da5179c7a5d
-  PurchasesHybridCommon: da80a28f43fdfbf96dcb04c3aa2c6122b0e315d2
-  RevenueCat: 39657b04641af73c29788b4bf2cf1acff52fd0dc
+  purchases_flutter: 9fb2b246a641854ab9e57b16011ccb4668b7ad01
+  PurchasesHybridCommon: 896c922f222ffde889a96568e02268b5ca9db85a
+  RevenueCat: d2d6a98d8e1d53cc1c6362cc1fdfb64ca99b8735
   share_plus: 796a4b55a883a34f4f1ff7bbd19436879a5055db
-  shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
+  shared_preferences_foundation: 9a36184bb1299692bf7b972bd6c60ab373084504
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
   webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4
 
