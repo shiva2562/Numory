@@ -90,6 +90,12 @@ Future<void> showSettings(
                         )
                       : const SizedBox.shrink(),
                 ),
+              ListTile(
+                key: const Key('more-games'),
+                leading: const Icon(Icons.grid_view_rounded),
+                title: const Text('More games'),
+                onTap: () => unawaited(openMoreGames(sheet, parentalGate: !agePolicy.canServeAds)),
+              ),
               if (privacyPolicyUrl.isNotEmpty)
                 ListTile(
                   leading: const Icon(Icons.description_outlined),
@@ -110,3 +116,17 @@ Future<void> showSettings(
     ),
   ),
 );
+
+/// Settings › More games: the shell's sheet of the other games. [parentalGate]
+/// for players under 13 or who have not said.
+Future<void> openMoreGames(BuildContext context, {bool parentalGate = true}) {
+  Analytics.instance.moreGamesShown();
+  return showMoreGames(
+    context,
+    bundleId: kBundleId,
+    fromId: kPromoId,
+    parentalGate: parentalGate,
+    style: MoreGamesStyle(titleStyle: body(size: 22, weight: FontWeight.w900)),
+    onOpen: (game) => Analytics.instance.moreGamesOpen(game.id),
+  );
+}

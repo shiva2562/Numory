@@ -1,6 +1,9 @@
 /// The game's name. Change it here and in Android's `android:label`.
 const String kAppName = 'Numory';
 
+/// This game's id in the "More games" catalog (shivapps_shell).
+const String kPromoId = 'numory';
+
 /// The store identifier (an existing Play app since before the rewrite).
 const String kBundleId = 'com.shivapps.numory';
 
