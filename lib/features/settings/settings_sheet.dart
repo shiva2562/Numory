@@ -117,8 +117,8 @@ Future<void> showSettings(
   ),
 );
 
-/// Settings › More games: the shell's sheet of the other games. [parentalGate]
-/// for players under 13 or who have not said.
+/// The More games row in Settings: the shell's sheet of the other games.
+/// [parentalGate] for players under 13 or who have not said.
 Future<void> openMoreGames(BuildContext context, {bool parentalGate = true}) {
   Analytics.instance.moreGamesShown();
   return showMoreGames(
