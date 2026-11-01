@@ -1,0 +1,15 @@
+{
+  "name": "numory-promo-video",
+  "private": true,
+  "type": "module",
+  "description": "Numory promo video: soundtrack and HyperFrames compositions (16:9 and 9:16).",
+  "scripts": {
+    "build": "python3 score.py",
+    "render": "node render.mjs",
+    "lint": "cd landscape && hyperframes lint . && cd ../portrait && hyperframes lint ."
+  },
+  "dependencies": {
+    "gsap": "3.13.0",
+    "hyperframes": "0.8.181"
+  }
+}

@@ -1,0 +1,5 @@
+node_modules/
+assets/gen/
+.hyperframes/
+landscape/.hyperframes/
+portrait/.hyperframes/

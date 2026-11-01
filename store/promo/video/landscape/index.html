@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[{"id":"cta","type":"string","label":"Call to action on the end card","default":"Coming soon to Google Play"}]'>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Numory promo (16:9, YouTube)</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css" />
+<link rel="stylesheet" href="assets/promo.css" />
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/edit.js"></script>
+<script src="assets/promo.js"></script>
+<style>html, body, #root { width: 1920px; height: 1080px; }</style>
+</head>
+<body>
+<!-- Numory promo, 16:9, YouTube, 28 s. assets/promo.js builds every scene from assets/edit.js; the soundtrack is assets/gen/soundtrack.wav (score.py). -->
+<div id="root" data-composition-id="landscape" data-start="0" data-duration="28" data-width="1920" data-height="1080">
+  <div id="world"></div>
+  <audio id="soundtrack" src="assets/gen/soundtrack.wav" data-start="0" data-duration="28" data-volume="1"></audio>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  window.__timelines["landscape"] = buildNumoryPromo({ assets: "assets/" });
+</script>
+</body>
+</html>
