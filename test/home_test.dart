@@ -64,4 +64,21 @@ void main() {
     await tester.pump();
     expect(rig.profile.sound, isFalse);
   });
+
+  testWidgets('settings opens More games, which lists the other games', (tester) async {
+    phone(tester);
+    final rig = await TestRig.create();
+    await tester.pumpWidget(NumoryApp(services: rig.services));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('settings')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.ensureVisible(find.byKey(const Key('more-games')));
+    await tester.tap(find.byKey(const Key('more-games')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('More games'), findsWidgets);
+    expect(find.byKey(const Key('more-games-rani')), findsOneWidget);
+    expect(find.byKey(const Key('more-games-numory')), findsNothing);
+  });
 }
