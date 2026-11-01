@@ -1,0 +1,61 @@
+/* Numory promo: neon on a synthwave night. Shared by landscape/ (16:9) and portrait/ (9:16).
+   The palette is the game's own (lib/theme.dart). */
+:root {
+  --ink: #07030F;
+  --board: #05020B;
+  --cell: #140B26;
+  --tile: #F2FDFF;
+  --text: #F4F0FF;
+  --muted: #9A8FB8;
+  --magenta: #FF2BD6;
+  --cyan: #19F0FF;
+  --violet: #8B3DFF;
+  --good: #3DFF9A;
+  --bad: #FF3355;
+  --gold: #FFE45C;
+  --display: 'Orbitron', sans-serif;
+  --body: 'Nunito', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { overflow: hidden; background: var(--ink); }
+#root { position: relative; overflow: hidden; background: var(--ink); font-family: var(--body); color: var(--text); }
+#world { position: absolute; inset: 0; }
+.scene { position: absolute; inset: 0; overflow: hidden; visibility: hidden; }
+.abs { position: absolute; }
+.fill { position: absolute; inset: 0; }
+canvas.abs { display: block; }
+
+/* neon type: a white-hot core with magenta and cyan ghosts either side (the app's Wordmark) */
+.neon { position: absolute; font-family: var(--display); font-weight: 900; line-height: 1.02; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.neon > .ghost { position: absolute; left: 0; top: 0; width: 100%; }
+.neon > .core { position: relative; }
+.sub { position: absolute; font-family: var(--body); font-weight: 800; color: #CFC6EA; line-height: 1.25; }
+.sub b { color: #fff; font-weight: 900; }
+
+/* the phone: the play screen at its logical size (400 x 866 dp), scaled as a whole */
+.phone { position: absolute; border-radius: 58px; padding: 9px; background: linear-gradient(160deg, #FF2BD6 0%, #8B3DFF 48%, #19F0FF 100%); }
+.phone .screen { position: absolute; left: 9px; top: 9px; border-radius: 50px; overflow: hidden; background: var(--ink); }
+.topbar { position: absolute; left: 16px; right: 16px; top: 8px; height: 48px; display: flex; align-items: center; }
+.topbar .home { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+.topbar .label { flex: 1; font-family: var(--body); font-weight: 900; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.topbar .best { flex: 1; font-family: var(--body); font-weight: 700; font-size: 13px; color: var(--muted); text-align: right; white-space: nowrap; }
+.topbar .clock { font-family: var(--display); font-weight: 900; font-size: 28px; letter-spacing: 2px; font-variant-numeric: tabular-nums; }
+.boardbox { position: absolute; }
+.board { position: absolute; inset: 0; border-radius: 18px; background: rgba(5, 2, 11, .92); border: 1.5px solid rgba(25, 240, 255, .8); }
+.cellbox { position: absolute; border-radius: 7px; border: 1px solid transparent; display: flex; align-items: center; justify-content: center; }
+.cellbox span { font-family: var(--body); font-weight: 900; font-size: 37px; line-height: 1; font-variant-numeric: tabular-nums; }
+.playline { position: absolute; left: 0; right: 0; height: 24px; text-align: center; font-family: var(--body); font-weight: 700; font-size: 15px; white-space: nowrap; }
+
+/* result cards over the board */
+.card { position: absolute; inset: 0; border-radius: 18px; background: rgba(8, 3, 18, .9); border: 1.5px solid; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.chip { min-width: 170px; min-height: 58px; padding: 10px 16px; border-radius: 14px; background: #12061F; border: 1px solid rgba(255, 43, 214, .6); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.neonbtn { height: 58px; min-width: 200px; padding: 2px; border-radius: 29px; background: linear-gradient(90deg, #FF2BD6, #8B3DFF, #19F0FF); }
+.neonbtn > div { height: 100%; border-radius: 27px; background: #12051F; display: flex; align-items: center; justify-content: center; padding: 0 28px; font-family: var(--display); font-weight: 900; font-size: 18px; letter-spacing: 3px; color: var(--text); white-space: nowrap; }
+
+/* mode pill (the home screen's picker) */
+.pill { position: absolute; display: flex; align-items: center; justify-content: center; border-radius: 999px; font-family: var(--body); font-weight: 900; white-space: nowrap; border: 2px solid transparent; }
+
+/* end card call to action */
+.cta { position: absolute; display: flex; align-items: center; white-space: nowrap; border-radius: 999px; padding: 4px; background: linear-gradient(90deg, #FF2BD6, #8B3DFF, #19F0FF); }
+.cta > div { display: flex; align-items: center; height: 100%; border-radius: 999px; background: #12051F; font-family: var(--display); font-weight: 900; color: #fff; }
+.cta img { border-radius: 22%; }
