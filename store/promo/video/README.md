@@ -57,6 +57,13 @@ npx hyperframes snapshot . --at 2.6,10.6,22.4  # stills at given times
 npx hyperframes lint .
 ```
 
+## The chimp prompts
+
+Made with Codex (ChatGPT image generation) on 2026-11-01; `art.py` does the rest.
+
+- `art/promo/chimp_sign.png`: "A neon tube sign of a cheeky chimpanzee face and shoulders, smiling confidently, one index finger raised beside its head as if saying 'easy'. Drawn only with glowing neon tubes (magenta #FF2BD6 outline, cyan #19F0FF details, a little violet), like a retro 1980s synthwave neon sign, realistic glass-tube glow and bloom. Centered, fills about 80% of the frame, pure flat black background (#000000), nothing else in the image, no text, no wall, no brackets or wires."
+- `art/promo/chimp_3d.png`: "A stylized 3D chimpanzee character, upper body, facing the viewer with a smug confident grin, wearing retro 1980s wraparound sunglasses, one index finger raised as if about to tap a screen. Lit by strong neon rim lights, magenta #FF2BD6 from the left and cyan #19F0FF from the right, dark violet fill. Polished game-mascot render. Transparent background if supported, otherwise a flat pure black (#000000) background, nothing else in the frame, no text."
+
 ## Honest bits
 
 - The rounds are scripted, not screen recordings: the taps are placed on the beat, and the clock reads the real time of the round as shown (the Medium round reads 4.13 s because it is 4.13 s long, counting 0.13 s before the first frame).
